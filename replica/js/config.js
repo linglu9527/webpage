@@ -49,7 +49,12 @@ export const ASSETS = {
   },
   // 头像小图 / 品牌标记 / 背景视频封面，都走这里
   // 封面三张图（单画布合成，由底到顶）
-  hero: { base: null, helmet: null, wire: null },
+  hero: {
+    // 内置默认值：即使 theme.json 加载失败也能出图
+    base: 'assets/portrait.png',
+    helmet: 'assets/helmet-doge.png',
+    wire: 'assets/helmet-wire.png'
+  },
   // 鼠标跟随图（旧方案，已停用）
   cursorReveal: null,
   brandMark: null,

@@ -43,11 +43,23 @@ function deepMerge(target, patch) {
   return target;
 }
 
+/* 拉主题配置：网络抖动时自动重试，避免首屏退回默认配色且没有素材 */
+async function fetchTheme(retries = 2) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch('theme.json', { cache: 'no-store' });
+      if (res.ok) return await res.json();
+    } catch (e) { /* 进入重试 */ }
+    if (i < retries) await new Promise((r) => setTimeout(r, 500 * (i + 1)));
+  }
+  console.warn('[theme] theme.json 读取失败，使用内置默认值');
+  return null;
+}
+
 async function applyThemeOverride() {
   try {
-    const res = await fetch('theme.json', { cache: 'no-store' });
-    if (!res.ok) return null;
-    const theme = await res.json();
+    const theme = await fetchTheme();
+    if (!theme) return null;
     deepMerge(PALETTE, theme.PALETTE);
     deepMerge(ASSETS, theme.ASSETS);
     deepMerge(CONTENT, theme.CONTENT);
