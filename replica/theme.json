@@ -1,0 +1,67 @@
+{
+  "_name": "当前主题：D1 EDITORIAL + 自有素材（单画布封面）",
+  "FONTS": {
+    "display": "\"Playfair Display\", \"Times New Roman\", serif",
+    "body": "\"Inter\", system-ui, sans-serif",
+    "googleHref": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600&family=Saira+Stencil+One&family=Noto+Sans+SC:wght@700&display=swap"
+  },
+  "RADIUS": "0px",
+  "SECTIONS": { "hero": "white", "marquee": "dark", "track": "dark", "otot": "white", "helmets": "white", "exe": "dark", "collabs": "white", "socials": "dark", "footer": "dark" },
+  "PALETTE": {
+    "lime": "#b23a1f",
+    "limeOff": "#cf7b5f",
+    "darkGreen": "#14110d",
+    "darkGreenTint1": "#2a241d",
+    "darkGreenTint2": "#443b30",
+    "white": "#f2efe6",
+    "cream": "#eae6da",
+    "greenLight": "#e4dfd2",
+    "grey2": "#c6c0b0",
+    "greenOffWhite2": "#a8a294",
+    "black": "#0c0a08",
+    "orange": "#b23a1f"
+  },
+  "ASSETS": {
+    "hero": {
+      "base": "assets/portrait.png",
+      "helmet": "assets/helmet-doge.png",
+      "wire": "assets/helmet-wire.png"
+    },
+    "head": { "diffuse": "assets/portrait.png", "depth": "assets/portrait-depth.png" },
+    "cursorReveal": null,
+    "posters": [null, null, null, null, null, null]
+  },
+  "HERO": {
+    "layout": {
+      "base":   { "w": 0.62, "y": -0.10 },
+      "helmet": { "w": 0.341, "y": -0.191 },
+      "wire":   { "w": 0.341, "y": -0.191 }
+    },
+    "reveal": { "min": 0.055, "max": 0.30, "ease": 0.025 },
+    "pointerEase": 0.12,
+    "wireColor": "#14110d",
+    "lightColor": "#b23a1f",
+    "glow": 0.34,
+    "wireWarp": 0.0006,
+    "wireGain": 1.5,
+    "contour": { "enabled": false, "color": "#14110d", "opacity": 0.30, "scale": 2.4, "levels": 9.0, "speed": 0.5, "fade": 0.40 },
+    "background": { "enabled": true, "bg": "#f2efe6", "fg": "#eae4d4", "fg2": "#ded6c0", "outline": "#c2b9a2", "opacity": 0.55, "scale": 1.9, "speed": 0.20, "thickness": 0.005 },
+    "flowColor": "#ffffff",
+    "flowSpeed": 0.5,
+    "flowWidth": 0.22,
+    "sparkle": 0.9,
+    "lightStrength": 0.85,
+    "dimFar": 0.9
+  },
+  "MOTION": {
+    "head": {
+      "colors": {
+        "background": "#f2efe6",
+        "foreground": "#b23a1f",
+        "outline": "#8f877a",
+        "cursor": "#d8cbb8",
+        "filter": "#3a2f26"
+      }
+    }
+  }
+}

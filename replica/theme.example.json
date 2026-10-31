@@ -1,0 +1,113 @@
+{
+  "_readme": "复制本文件为 theme.json 即生效（与 index.html 同级）。改哪块写哪块，没写的用 config.js 默认值。",
+
+  "FONTS": {
+    "_hint": "display=大标题字体, body=正文字体；googleHref 可留空。改用本地字体时直接写字体名。",
+    "display": "\"Archivo Black\", \"Helvetica Neue\", sans-serif",
+    "body": "\"Inter\", system-ui, sans-serif",
+    "googleHref": "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700&display=swap"
+  },
+
+  "RADIUS": "6px",
+
+  "PALETTE": {
+    "_hint": "键名对应 CSS 变量 --c-<key>。至少要改这 5 个才能看出换装：lime / darkGreen / white / cream / black。",
+    "lime": "#ff5a1f",
+    "limeOff": "#ff8a5c",
+    "darkGreen": "#0e1220",
+    "darkGreenTint1": "#1b2134",
+    "darkGreenTint2": "#2b3348",
+    "white": "#f7f7f5",
+    "cream": "#f1f1ee",
+    "greenLight": "#e9e9e6",
+    "grey2": "#c9c9c4",
+    "greenOffWhite2": "#b6b8ae",
+    "black": "#0a0d16",
+    "orange": "#ff5a1f"
+  },
+
+  "ASSETS": {
+    "_hint": "相对 replica/ 根目录。head.diffuse / head.depth 是首屏 2.5D 人像；posters 是社媒 6 张封面。",
+    "head": {
+      "diffuse": "assets/portrait.webp",
+      "depth": "assets/portrait-depth.webp",
+      "alpha": null,
+      "normal": null
+    },
+    "posters": [
+      "assets/poster-1.webp",
+      "assets/poster-2.webp",
+      "assets/poster-3.webp",
+      "assets/poster-4.webp",
+      "assets/poster-5.webp",
+      "assets/poster-6.webp"
+    ]
+  },
+
+  "CONTENT": {
+    "brand": "ACME",
+    "hero": {
+      "line1": "NOVA",
+      "line2": "STUDIO",
+      "kicker": "INDEPENDENT DESIGN PRACTICE",
+      "nextRaceLabel": "NEXT RELEASE",
+      "nextRace": "SPRING DROP",
+      "cta": "SEE THE WORK"
+    },
+    "marquee": {
+      "top": "MAKE IT LOUDER MAKE IT LOUDER",
+      "bottom": "DESIGN THAT REFUSES TO WHISPER"
+    },
+    "track": {
+      "title": "SELECTED WORK",
+      "panels": [
+        { "no": "01", "title": "IDENTITY", "meta": "BRANDING · 2026", "text": "A mark that survives being small." },
+        { "no": "02", "title": "MOTION", "meta": "MOTION SYSTEM · 2026", "text": "Rules that scale from a button to a billboard." },
+        { "no": "03", "title": "SPATIAL", "meta": "WEBGL · 2026", "text": "Depth that pays for itself in attention." },
+        { "no": "04", "title": "EDITORIAL", "meta": "PRINT · 2025", "text": "Grids that know when to break." }
+      ]
+    },
+    "otot": {
+      "onLabel": "WORK",
+      "onHref": "on-track.html",
+      "onText": "Case studies, process notes and the reasoning behind each decision.",
+      "offLabel": "STUDIO",
+      "offHref": "off-track.html",
+      "offText": "Who we are, how we work, and what we will not do."
+    },
+    "helmets": {
+      "title": "SIGNATURES",
+      "items": [
+        { "name": "PRIMARY", "meta": "CORE SYSTEM", "accent": "#ff5a1f" },
+        { "name": "SECONDARY", "meta": "EXTENSION", "accent": "#b6b8ae" }
+      ]
+    },
+    "exe": {
+      "label": "STUDIO NOTE",
+      "title": "Always bringing the fight.",
+      "text": "Small team, long bets, no borrowed taste."
+    },
+    "collabs": {
+      "title": "CLIENTS",
+      "items": ["NORTHWIND", "HALO", "PAPER CO", "ATLAS"]
+    },
+    "socials": {
+      "title": "ELSEWHERE",
+      "items": ["TIKTOK", "INSTAGRAM", "YOUTUBE", "TWITCH"]
+    },
+    "footer": {
+      "big": "ACME",
+      "note": "Design replica. Replace with your own content.",
+      "links": [
+        { "label": "Home", "href": "index.html" },
+        { "label": "Work", "href": "on-track.html" },
+        { "label": "Studio", "href": "off-track.html" },
+        { "label": "Contact", "href": "calendar.html" }
+      ]
+    }
+  },
+
+  "LINKS": {
+    "store": "https://example.com/shop"
+  }
+}

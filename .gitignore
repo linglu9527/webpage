@@ -1,0 +1,24 @@
+# 本地调试产物（含第三方 JS 与抓取记录）
+target/
+capture-home.json
+REPORT.md
+
+# 预览图（体积大，不入库）
+replica/assets/preview-*.png
+
+# 常规
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# 临时/第三方（不入库）
+__pycache__/
+*.pyc
+tools/sotd.glb
+tools/three.module.js
+tools/draco/
+tools/viewer.html
+tools/top.html
+tools/face.html
+tools/server.js

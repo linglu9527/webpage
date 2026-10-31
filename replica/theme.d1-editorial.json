@@ -1,0 +1,27 @@
+{
+  "_name": "D1 — EDITORIAL（纸感 / 衬线 / 杂志排版）",
+  "FONTS": {
+    "display": "\"Playfair Display\", \"Times New Roman\", serif",
+    "body": "\"Inter\", system-ui, sans-serif",
+    "googleHref": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600&display=swap"
+  },
+  "RADIUS": "0px",
+  "SECTIONS": { "hero": "white", "marquee": "dark", "track": "dark", "otot": "white", "helmets": "white", "exe": "dark", "collabs": "white", "socials": "dark", "footer": "dark" },
+  "PALETTE": {
+    "lime": "#b23a1f",
+    "limeOff": "#cf7b5f",
+    "darkGreen": "#14110d",
+    "darkGreenTint1": "#2a241d",
+    "darkGreenTint2": "#443b30",
+    "white": "#f2efe6",
+    "cream": "#eae6da",
+    "greenLight": "#e4dfd2",
+    "grey2": "#c6c0b0",
+    "greenOffWhite2": "#a8a294",
+    "black": "#0c0a08",
+    "orange": "#b23a1f"
+  },
+  "MOTION": {
+    "head": { "colors": { "background": "#f2efe6", "foreground": "#b23a1f", "outline": "#8f877a", "cursor": "#d8cbb8", "filter": "#3a2f26" } }
+  }
+}

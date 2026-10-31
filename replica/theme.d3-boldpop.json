@@ -1,0 +1,27 @@
+{
+  "_name": "D3 — BOLD POP（超粗无衬线 / 高饱和 / 海报感）",
+  "FONTS": {
+    "display": "\"Archivo Black\", \"Helvetica Neue\", sans-serif",
+    "body": "\"Inter\", system-ui, sans-serif",
+    "googleHref": "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700&display=swap"
+  },
+  "RADIUS": "24px",
+  "SECTIONS": { "hero": "white", "marquee": "lime", "track": "dark", "otot": "lime", "helmets": "white", "exe": "dark", "collabs": "white", "socials": "lime", "footer": "dark" },
+  "PALETTE": {
+    "lime": "#ff2d8a",
+    "limeOff": "#b81f61",
+    "darkGreen": "#0b0b12",
+    "darkGreenTint1": "#1c1c2b",
+    "darkGreenTint2": "#33334a",
+    "white": "#fbf7ef",
+    "cream": "#f3ece0",
+    "greenLight": "#eae2d4",
+    "grey2": "#c9c1b4",
+    "greenOffWhite2": "#a9a294",
+    "black": "#07070c",
+    "orange": "#ffd400"
+  },
+  "MOTION": {
+    "head": { "colors": { "background": "#fbf7ef", "foreground": "#ff2d8a", "outline": "#0b0b12", "cursor": "#ffd400", "filter": "#0b0b12" } }
+  }
+}

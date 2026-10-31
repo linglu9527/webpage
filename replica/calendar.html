@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar — REA Replica</title>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body data-theme="dark">
+
+<nav class="nav">
+  <a class="nav__brand" href="index.html">NORRIS</a>
+  <div class="nav__links">
+    <a href="index.html">Home</a>
+    <a href="on-track.html">On Track</a>
+    <a href="off-track.html">Off Track</a>
+    <a href="calendar.html" style="opacity:1">Calendar</a>
+  </div>
+  <a class="nav__cta" href="#">Store</a>
+</nav>
+
+<main>
+  <section class="section" data-section-theme="dark" style="padding-top:clamp(120px,18vh,220px)">
+    <div class="eyebrow" data-reveal>2026 SEASON</div>
+    <h1 class="display" data-split style="margin:18px 0">CALENDAR</h1>
+    <p class="body-sm" data-reveal style="max-width:52ch">
+      原站这一页 24 场全部是 Webflow CMS 条目、服务端渲染。这里用同样的
+      数据列表结构呈现，行即可点击项。
+    </p>
+  </section>
+
+  <section class="section" data-section-theme="dark" style="padding-top:0">
+    <div class="list" id="cal"></div>
+  </section>
+</main>
+
+<footer class="footer" data-section-theme="dark">
+  <h2 class="footer__big">LN4</h2>
+  <div class="footer__meta">
+    <div>Fan-made structural replica. Not affiliated.</div>
+    <nav class="footer__links">
+      <a href="index.html">Home</a><a href="on-track.html">On Track</a>
+      <a href="off-track.html">Off Track</a><a href="calendar.html">Calendar</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="module">
+  // 赛历数据：改这里即可替换（原站来自 CMS）
+  const RACES = [
+    ['01', 'AUSTRALIA',         '8 MAR 26',  '5TH · 1:22.358'],
+    ['02', 'CHINA',             '15 MAR 26', 'DNS'],
+    ['03', 'JAPAN',             '29 MAR 26', '5TH · 1:33.208'],
+    ['04', 'BAHRAIN',           '12 APR 26', '—'],
+    ['05', 'SAUDI ARABIA',      '19 APR 26', '—'],
+    ['06', 'MIAMI',             '3 MAY 26',  '—'],
+    ['07', 'EMILIA ROMAGNA',    '17 MAY 26', '—'],
+    ['08', 'MONACO',            '24 MAY 26', '—'],
+    ['09', 'SPAIN',             '31 MAY 26', '—'],
+    ['10', 'CANADA',            '14 JUN 26', '—'],
+    ['11', 'AUSTRIA',           '28 JUN 26', '—'],
+    ['12', 'BRITAIN',           '5 JUL 26',  '—'],
+    ['13', 'BELGIUM',           '26 JUL 26', '—'],
+    ['14', 'HUNGARY',           '2 AUG 26',  '—'],
+    ['15', 'NETHERLANDS',       '30 AUG 26', '—'],
+    ['16', 'ITALY',             '6 SEP 26',  '—'],
+    ['17', 'AZERBAIJAN',        '20 SEP 26', '—'],
+    ['18', 'SINGAPORE',         '4 OCT 26',  '—'],
+    ['19', 'USA',               '25 OCT 26', '—'],
+    ['20', 'MEXICO',            '1 NOV 26',  '—'],
+    ['21', 'BRAZIL',            '8 NOV 26',  '—'],
+    ['22', 'LAS VEGAS',         '21 NOV 26', '—'],
+    ['23', 'QATAR',             '29 NOV 26', '—'],
+    ['24', 'ABU DHABI',         '6 DEC 26',  '—']
+  ];
+  const host = document.getElementById('cal');
+  RACES.forEach(([no, name, date, result]) => {
+    const a = document.createElement('a');
+    a.className = 'list__row';
+    a.href = '#';
+    a.setAttribute('data-reveal', '');
+    a.innerHTML = `<span><span style="opacity:.45;font-size:.55em;margin-right:14px">${no}</span>${name}</span>
+                   <span>${date} · ${result}</span>`;
+    host.appendChild(a);
+  });
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
