@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
+<script>
+  // 启动期错误捕获：异步异常不再静默
+  window.__errs = [];
+  addEventListener('error', (e) => window.__errs.push('error: ' + (e.message || e.type)));
+  addEventListener('unhandledrejection', (e) => window.__errs.push('reject: ' + (e.reason && e.reason.message ? e.reason.message : e.reason)));
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>REA Replica — 滚动流程复刻</title>
