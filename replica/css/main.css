@@ -845,7 +845,16 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   padding: 5px;                       /* 线框到图片 / 文字的间距 */
   border: 2px dashed currentColor;    /* 虚线 + 加粗 */
   border-radius: 4px;
-  transition: transform .35s cubic-bezier(.2, .7, .2, 1), border-color .3s ease;
+  transform-style: preserve-3d;
+  /* 2.5D：透视 + 指针驱动的两个轴向旋转 */
+  transform:
+    perspective(520px)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg))
+    translateY(var(--lift, 0px))
+    scale(var(--sc, 1));
+  transition: transform .18s ease-out, border-color .3s ease;
+  will-change: transform;
 }
 
 .pet__img {
@@ -870,9 +879,9 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
 }
 
 .hero__corner--pet:hover { animation-play-state: paused; }
-.hero__corner--pet:hover .pet__box { transform: translateY(-3px); border-color: var(--accent); }
+.hero__corner--pet:hover .pet__box { --lift: -4px; border-color: var(--accent); }
 .hero__corner--pet:hover .pet__img { filter: grayscale(0) contrast(1.08); }
-.hero__corner--pet:active .pet__box { transform: scale(.975); }
+.hero__corner--pet:active .pet__box { --sc: .975; }
 .hero__corner--pet:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
 /* 点击之后：卡片高频震动，文字上下跳 */
@@ -978,11 +987,13 @@ body[data-theme="paper"] {
   align-items: center;
   line-height: 1;
 }
-.shield-icon {
-  height: 1.12em;
+.shield-img {
+  height: 1.35em;
   width: auto;
   display: block;
-  transition: transform .3s cubic-bezier(.2, .7, .2, 1);
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform .3s cubic-bezier(.2, .7, .2, 1), filter .3s ease;
 }
-.hero__corner--btn:hover .shield-icon { transform: scale(1.08) rotate(-3deg); }
-body.is-barking .shield-icon { color: var(--accent); }
+.hero__corner--btn:hover .shield-img { transform: scale(1.08) rotate(-3deg); }
+body.is-barking .shield-img { filter: drop-shadow(0 0 6px var(--accent)); }

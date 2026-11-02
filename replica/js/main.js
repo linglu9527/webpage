@@ -654,6 +654,34 @@ function initTitleFill() {
   }
 }
 
+
+/* ---------------------------------------------------------------- 左下角 2.5D
+   指针在卡片上移动时，卡片按位置做 rotateX / rotateY
+   ------------------------------------------------------------------------ */
+function initPet3D() {
+  const btn = $('[data-pet]');
+  if (!btn) return;
+  const box = btn.querySelector('.pet__box');
+  if (!box) return;
+
+  const MAX = 12;   // 最大旋转角度
+
+  const reset = () => {
+    box.style.setProperty('--rx', '0deg');
+    box.style.setProperty('--ry', '0deg');
+  };
+
+  btn.addEventListener('pointermove', (e) => {
+    const r = box.getBoundingClientRect();
+    const dx = (e.clientX - r.left) / r.width - 0.5;    // -0.5..0.5
+    const dy = (e.clientY - r.top) / r.height - 0.5;
+    box.style.setProperty('--ry', (dx * 2 * MAX).toFixed(2) + 'deg');
+    box.style.setProperty('--rx', (-dy * 2 * MAX).toFixed(2) + 'deg');
+  });
+  btn.addEventListener('pointerleave', reset);
+  btn.addEventListener('blur', reset);
+}
+
 function initSectionArt() {
   const on = $('[data-art="on-track"]');
   if (on) on.innerHTML = circuitSVG(21, { size: 240 });
@@ -916,6 +944,7 @@ async function boot() {
   initReveals();
   initBark();
   initTitleFill();
+  initPet3D();
   initSectionArt();
   initCountdown();
   initTransitions();

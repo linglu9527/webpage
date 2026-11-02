@@ -16,10 +16,28 @@ const VERT = `#version 300 es
 in vec2 aPos;
 uniform vec2 uScale;
 uniform vec2 uOffset;
+uniform float uRot;      // 平面内旋转（弧度）
+uniform vec2 uTilt;      // 3D 倾斜：x = yaw, y = pitch（弧度）
+uniform float uPersp;    // 透视强度
 out vec2 vUv;
 void main(){
   vUv = aPos * 0.5 + 0.5;
-  gl_Position = vec4(aPos * uScale + uOffset, 0.0, 1.0);
+
+  float c = cos(uRot), s = sin(uRot);
+  vec2 p = mat2(c, -s, s, c) * aPos;
+
+  vec3 v = vec3(p * uScale, 0.0);
+
+  // 绕 Y 轴（yaw）
+  float cy = cos(uTilt.x), sy = sin(uTilt.x);
+  v = vec3(v.x * cy, v.y, -v.x * sy);
+
+  // 绕 X 轴（pitch）
+  float cx = cos(uTilt.y), sx = sin(uTilt.y);
+  v = vec3(v.x, v.y * cx - v.z * sx, v.y * sx + v.z * cx);
+
+  float w = 1.0 - v.z * uPersp;      // 透视除法
+  gl_Position = vec4(v.xy / w + uOffset, 0.0, 1.0);
 }`;
 
 /* 等高线背景：fbm 噪声取等值线，随时间起伏 */
@@ -215,6 +233,10 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
 
   let base, helmet, wire;
   let baseUrl = '';
+  // 2.5D 倾斜：跟随指针，缓动逼近
+  const tilt = [0, 0];
+  const TILT_MAX = { yaw: 0.16, pitch: 0.11 };
+
   // 左右摇晃：只作用于底图，结束前 300ms 归位
   const shake = { rot: 0, active: false, start: 0, dur: 0, amp: 0.030, period: 760 };
 
@@ -317,7 +339,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(vao);
 
-    const drawLayer = (prog, texInfo, conf, frag, alpha = 1, sqY = 1, sqX = 1, rot = 0) => {
+    const drawLayer = (prog, texInfo, conf, frag, alpha = 1, sqY = 1, sqX = 1, rot = 0, tilt = [0, 0]) => {
       gl.useProgram(prog);
       gl.enableVertexAttribArray(gl.getAttribLocation(prog, 'aPos'));
       gl.vertexAttribPointer(gl.getAttribLocation(prog, 'aPos'), 2, gl.FLOAT, false, 0, 0);
@@ -328,6 +350,8 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
 
       gl.uniform2f(loc(prog, 'uScale'), sx * sqX, sy * sqY);
       gl.uniform1f(loc(prog, 'uRot'), rot);
+      gl.uniform2f(loc(prog, 'uTilt'), tilt[0], tilt[1]);
+      gl.uniform1f(loc(prog, 'uPersp'), tilt[0] || tilt[1] ? (cfg.persp ?? 2.2) : 0.0);
       // 统一标尺：x/y 都按画布宽度换算，改窗口大小时三层一起缩放，永不散位
       gl.uniform2f(loc(prog, 'uOffset'),
         ((conf.x ?? 0) * unitPx) / cw,
@@ -350,6 +374,15 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     // width：以画布宽度为标尺（默认，构图随窗口等比缩放）
     // contain：以能放进窗口的最大 16:10 舞台为标尺
     const unitPx = (cfg.stage?.mode === 'contain') ? stageW : cw;
+
+    // 2.5D 倾斜缓动（仅底图）
+    {
+      const tx = (state.mx - 0.5) * 2 * TILT_MAX.yaw;
+      const ty = (state.my - 0.5) * 2 * TILT_MAX.pitch;
+      const k = state.inside ? 0.075 : 0.045;
+      tilt[0] += (tx - tilt[0]) * k;
+      tilt[1] += (ty - tilt[1]) * k;
+    }
 
     // 摇晃动画（仅底图）：最后 300ms 内幅度衰减到 0
     if (shake.active) {
@@ -415,7 +448,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
-    drawLayer(progBase, base, layout.base || { w: 0.66, y: -0.16 }, null, opac.base ?? 1, squash.y, squash.x, shake.rot);
+    drawLayer(progBase, base, layout.base || { w: 0.66, y: -0.16 }, null, opac.base ?? 1, squash.y, squash.x, shake.rot, tilt);
 
     drawLayer(progHelmet, helmet, layout.helmet || { w: 0.3, y: 0.2 }, (p) => {
       gl.uniform2f(loc(p, 'uRes'), cw, ch);
@@ -423,7 +456,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       gl.uniform1f(loc(p, 'uRadius'), radius);
       gl.uniform1f(loc(p, 'uReveal'), state.reveal);
       gl.uniform1f(loc(p, 'uDim'), cfg.dimFar ?? 0.9);
-    }, opac.helmet ?? 1);
+    }, opac.helmet ?? 1, 1, 1, 0, tilt);
 
     drawLayer(progWire, wire, layout.wire || { w: 0.34, y: 0.2 }, (p) => {
       gl.uniform2f(loc(p, 'uRes'), cw, ch);
@@ -438,7 +471,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       gl.uniform1f(loc(p, 'uWidth'), cfg.flowWidth ?? 0.05);
       gl.uniform1f(loc(p, 'uGain'), cfg.wireGain ?? 1.5);
       gl.uniform3fv(loc(p, 'uFlowColor'), new Float32Array(colors.flow));
-    }, opac.wire ?? 1);
+    }, opac.wire ?? 1, 1, 1, 0, tilt);
 
   };
 
