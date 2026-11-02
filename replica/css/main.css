@@ -628,12 +628,12 @@ body.is-booted .char { opacity: 1; transform: none; }
   margin: 0;
   font-family: var(--font-stencil);
   font-weight: 400;
-  font-size: clamp(20px, 2.6vw, 38px);
+  font-size: clamp(40px, 5.2vw, 76px);   /* 原来的 2 倍 */
   letter-spacing: 0.16em;
   line-height: 1;
   color: var(--fg);
   white-space: nowrap;
-  pointer-events: none;
+  pointer-events: auto;                   /* 悬停填充需要可命中 */
 }
 
 /* 四角文案 */
@@ -650,7 +650,10 @@ body.is-booted .char { opacity: 1; transform: none; }
   top: clamp(16px, 2.4vh, 30px);
   left: var(--pad);
   font-family: var(--font-stencil);
-  letter-spacing: 0.22em;
+  font-size: clamp(17px, 1.65vw, 26px);   /* 放大 */
+  letter-spacing: 0.16em;
+  line-height: 1.12;
+  white-space: pre-line;                  /* 支持两行：NIU / YANTAO */
 }
 .hero__corner--tr {
   top: clamp(16px, 2.4vh, 30px);

@@ -70,7 +70,7 @@ export const CONTENT = {
   brand: 'NORRIS',
   hero: {
     title: 'WO DE DAO DUN',      // 顶部标题
-    tl: 'NIUYANTAO',             // 左上角
+    tl: 'NIU\nYANTAO',            // 左上角（两行）
     tr: '大狗',                   // 右上角
     bl: 'gogogo JIAO',           // 左下角
     br: 'VIEW ON TRACK'          // 右下角（本轮不改）
