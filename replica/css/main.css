@@ -650,7 +650,7 @@ body.is-booted .char { opacity: 1; transform: none; }
   top: clamp(16px, 2.4vh, 30px);
   left: var(--pad);
   font-family: var(--font-stencil);
-  font-size: clamp(17px, 1.65vw, 26px);   /* 放大 */
+  font-size: clamp(24px, 2.35vw, 36px);   /* 放大 */
   letter-spacing: 0.16em;
   line-height: 1.12;
   white-space: pre-line;                  /* 支持两行：NIU / YANTAO */
@@ -920,10 +920,9 @@ body.is-barking .pet__label {
   -webkit-text-stroke: 1.3px #14110d;
   paint-order: stroke fill;
   --fill: 0%;
-  /* 斜向擦除：从左上方切入，右侧为斜边 */
-  clip-path: polygon(0 0, var(--fill) 0, calc(var(--fill) - 24%) 100%, -24% 100%);
-  transition: --fill .46s cubic-bezier(.25, .8, .35, 1);
+  transition: --fill var(--dur, .46s) var(--ease, cubic-bezier(.25,.8,.35,1));
   transition-delay: var(--d, 0ms);
+  clip-path: polygon(0 0, var(--fill) 0, calc(var(--fill) - 24%) 100%, -24% 100%);
   pointer-events: none;
 }
 
@@ -955,3 +954,35 @@ body[data-theme="paper"] {
 .footer .footer__meta,
 .footer .eyebrow { color: rgba(20, 17, 13, 0.62); }
 .footer .footer__links a:hover { color: #14110d; }
+
+
+/* 标题填充的四个出发角：不再是每个字母都从左边缘开始 */
+.hero__title .tchar[data-dir="tl"]::after {
+  clip-path: polygon(0 0, var(--fill) 0, calc(var(--fill) - 24%) 100%, -24% 100%);
+}
+.hero__title .tchar[data-dir="tr"]::after {
+  clip-path: polygon(100% 0, calc(100% - var(--fill)) 0, calc(100% - var(--fill) + 24%) 100%, 124% 100%);
+}
+.hero__title .tchar[data-dir="bl"]::after {
+  clip-path: polygon(0 100%, var(--fill) 100%, calc(var(--fill) - 24%) 0, -24% 0);
+}
+.hero__title .tchar[data-dir="br"]::after {
+  clip-path: polygon(100% 100%, calc(100% - var(--fill)) 100%, calc(100% - var(--fill) + 24%) 0, 124% 0);
+}
+
+
+/* 右上角：盾牌图标，高度与左上角文字一致 */
+.hero__corner--tr {
+  font-size: clamp(24px, 2.35vw, 36px);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+.shield-icon {
+  height: 1.12em;
+  width: auto;
+  display: block;
+  transition: transform .3s cubic-bezier(.2, .7, .2, 1);
+}
+.hero__corner--btn:hover .shield-icon { transform: scale(1.08) rotate(-3deg); }
+body.is-barking .shield-icon { color: var(--accent); }

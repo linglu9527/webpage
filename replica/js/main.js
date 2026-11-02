@@ -618,6 +618,15 @@ function initTitleFill() {
     const text = (title.textContent || '').trim();
     if (!text) return;
 
+    // 四个出发角 + 不同的时长/缓动，避免所有字母从左边缘齐步走
+    const DIRS = ['tl', 'tr', 'bl', 'br'];
+    const EASES = [
+      'cubic-bezier(.22,.9,.28,1)',
+      'cubic-bezier(.55,.02,.2,1)',
+      'cubic-bezier(.15,.75,.3,1.02)',
+      'cubic-bezier(.65,.05,.35,1)',
+    ];
+
     const frag = document.createDocumentFragment();
     let i = 0;
     for (const ch of [...text]) {
@@ -626,10 +635,14 @@ function initTitleFill() {
         continue;
       }
       const span = document.createElement('span');
-      span.className = 'tchar';          // 不用 .char，避免和入场动画冲突
+      span.className = 'tchar';
       span.textContent = ch;
       span.dataset.char = ch;
-      span.style.setProperty('--d', `${i * 38}ms`);
+      span.dataset.dir = DIRS[i % DIRS.length];
+      span.style.setProperty('--d', `${i * 34}ms`);
+      // 0.34 ~ 0.60 秒之间抖动，速度不统一
+      span.style.setProperty('--dur', (0.34 + ((i * 37) % 27) / 100).toFixed(2) + 's');
+      span.style.setProperty('--ease', EASES[i % EASES.length]);
       frag.appendChild(span);
       i++;
     }
