@@ -214,6 +214,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
   if (!gl) return { fallback: true, setPointer() {}, destroy() {} };
 
   let base, helmet, wire;
+  let baseUrl = '';
   try {
     const [b, h, w] = await Promise.all([
       loadImage(assets.base),
@@ -221,6 +222,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       loadImage(assets.wire)
     ]);
     base = upload(gl, b);
+    baseUrl = assets.base;
     helmet = upload(gl, h);
     wire = upload(gl, w);
   } catch (e) {
@@ -390,8 +392,20 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     if (performance.now() - lastRaf > 220) render();
   }, 120);
 
+  // 临时替换底图（点「大狗」的彩蛋用）
+  const setBase = async (url) => {
+    if (!url || url === baseUrl) return false;
+    const im = await loadImage(url);
+    if (base.tex) gl.deleteTexture(base.tex);
+    base = upload(gl, im);
+    baseUrl = url;
+    render();
+    return true;
+  };
+
   return {
     fallback: false,
+    setBase,
     // nx, ny 为 0..1 的画布归一化坐标；inside 表示指针是否在封面上
     // instant=true 时立即到位（用于调试/截图）
     setPointer(nx, ny, inside, instant) {

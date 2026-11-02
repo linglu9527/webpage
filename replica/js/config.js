@@ -168,6 +168,10 @@ export const MOTION = {
  * layout.*.y  垂直位置（NDC，-1 到底、1 到顶）
  * reveal      鼠标附近显现的半径范围与缓动（min→max 需要停留才会长大）
  * ------------------------------------------------------------------------- */
+// 彩蛋素材：点右上角「大狗」时替换底图并播放叫声
+ASSETS.bark = 'assets/bark.wav';
+ASSETS.heroBark = 'assets/portrait-bark.png';
+
 export const HERO = {
   // 舞台：所有图层共用同一标尺，窗口变化时整体等比缩放（三层永久锁定）
   stage: { aspect: 1.6, mode: 'contain' },  // contain: 取 min(宽, 高×aspect) 作标尺，保证完整可见

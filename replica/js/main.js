@@ -361,6 +361,65 @@ async function initHead(scroll) {
  * ------------------------------------------------------------------------- */
 
 /* 区块配图：全部用代码生成的 SVG，随主题变色 */
+
+/* ---------------------------------------------------------------- 彩蛋
+   点右上角「大狗」：换图 + 播放叫声 + 暂时藏起头盔与线框，声音结束再复原
+   ------------------------------------------------------------------------ */
+function initBark() {
+  const btn = $('[data-bark]');
+  if (!btn) return;
+
+  const barkSrc = ASSETS.heroBark || 'assets/portrait-bark.png';
+  const audioSrc = ASSETS.bark || 'assets/bark.wav';
+  const baseSrc = ASSETS.hero?.base || 'assets/portrait.png';
+  const FALLBACK_MS = 6800;      // 音频拿不到时长时的兜底
+
+  let audio = null;
+  let timer = 0;
+  let busy = false;
+
+  const setLayers = (hidden) => {
+    HERO.opacity = hidden
+      ? { base: 1, helmet: 0, wire: 0 }
+      : { base: 1, helmet: 1, wire: 1 };
+  };
+
+  function restore() {
+    if (!busy) return;
+    busy = false;
+    clearTimeout(timer);
+    document.body.classList.remove('is-barking');
+    setLayers(false);
+    if (window.__hero?.setBase) window.__hero.setBase(baseSrc);
+  }
+
+  btn.addEventListener('click', () => {
+    if (busy) return;
+    busy = true;
+    document.body.classList.add('is-barking');
+
+    setLayers(true);
+    if (window.__hero?.setBase) window.__hero.setBase(barkSrc);
+
+    // 先挂兜底定时器，再播音频 —— 音频被拒/卡住也不会一直不回位
+    clearTimeout(timer);
+    timer = setTimeout(restore, FALLBACK_MS);
+
+    try {
+      if (!audio) {
+        audio = new Audio(audioSrc);
+        audio.preload = 'auto';
+      }
+      audio.onended = restore;
+      audio.currentTime = 0;
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch (e) {
+      /* 播放失败就等兜底定时器 */
+    }
+  });
+}
+
 function initSectionArt() {
   const on = $('[data-art="on-track"]');
   if (on) on.innerHTML = circuitSVG(21, { size: 240 });
@@ -621,6 +680,7 @@ async function boot() {
   initThemes(scroll);
   initMotion(scroll);
   initReveals();
+  initBark();
   initSectionArt();
   initCountdown();
   initTransitions();

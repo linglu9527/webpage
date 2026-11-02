@@ -760,3 +760,25 @@ body.is-booted .char { opacity: 1; transform: none; }
 
 .exe__art { width: 100%; height: 100%; display: block; }
 .exe__art svg { width: 100%; height: 100%; display: block; }
+
+/* 右上角「大狗」按钮 + 彩蛋状态 */
+.hero__corner--btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity .25s ease, transform .25s cubic-bezier(.2, .7, .2, 1);
+}
+.hero__corner--btn:hover { transform: scale(1.12); }
+.hero__corner--btn:active { transform: scale(0.96); }
+.hero__corner--btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* 叫的时候整幅画面轻微一顶 */
+body.is-barking .hero__canvas { transform: scale(1.015); }
+.hero__canvas { transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
