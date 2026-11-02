@@ -366,17 +366,24 @@ async function initHead(scroll) {
    点右上角「大狗」：换图 + 播放叫声 + 暂时藏起头盔与线框，声音结束再复原
    ------------------------------------------------------------------------ */
 function initBark() {
-  const btn = $('[data-bark]');
-  if (!btn) return;
+  // 注意：initBark 可能在 initHero 之前执行，必须延迟取实例
+  const getHero = () => window.__hero;
+  const barkBtn = $('[data-bark]');
+  const canvas = document.querySelector('[data-hero-canvas] canvas');
+  if (!barkBtn && !canvas) return;
 
   const barkSrc = ASSETS.heroBark || 'assets/portrait-bark.png';
-  const audioSrc = ASSETS.bark || 'assets/bark.wav';
   const baseSrc = ASSETS.hero?.base || 'assets/portrait.png';
-  const FALLBACK_MS = 6800;      // 音频拿不到时长时的兜底
+  const FALLBACK_MS = 6800;
 
-  let audio = null;
+  const sources = {
+    bark: ASSETS.bark || 'assets/bark.wav',
+    knife: ASSETS.knife || 'assets/knife.wav',
+  };
+  const cache = {};
+
   let timer = 0;
-  let busy = false;
+  let busy = false;          // 两款音效互斥：一个没播完，另一个不响应
 
   const setLayers = (hidden) => {
     HERO.opacity = hidden
@@ -388,35 +395,49 @@ function initBark() {
     if (!busy) return;
     busy = false;
     clearTimeout(timer);
-    document.body.classList.remove('is-barking');
+    document.body.classList.remove('is-barking', 'is-knife');
     setLayers(false);
-    if (window.__hero?.setBase) window.__hero.setBase(baseSrc);
+    if (getHero()?.setBase) getHero().setBase(baseSrc);
   }
 
-  btn.addEventListener('click', () => {
-    if (busy) return;
+  function play(kind) {
+    if (busy) return false;
+
     busy = true;
-    document.body.classList.add('is-barking');
-
-    setLayers(true);
-    if (window.__hero?.setBase) window.__hero.setBase(barkSrc);
-
-    // 先挂兜底定时器，再播音频 —— 音频被拒/卡住也不会一直不回位
     clearTimeout(timer);
+
+    document.body.classList.add(kind === 'bark' ? 'is-barking' : 'is-knife');
+    setLayers(true);
+    if (kind === 'bark' && getHero()?.setBase) getHero().setBase(barkSrc);
+
+    // 先挂兜底定时器，再播音频（音频被拒也不会一直不回位）
     timer = setTimeout(restore, FALLBACK_MS);
 
     try {
-      if (!audio) {
-        audio = new Audio(audioSrc);
-        audio.preload = 'auto';
-      }
-      audio.onended = restore;
-      audio.currentTime = 0;
-      const p = audio.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
+      const a = (cache[kind] = cache[kind] || new Audio(sources[kind]));
+      a.onended = restore;
+      a.currentTime = 0;
+      const pr = a.play();
+      if (pr && typeof pr.catch === 'function') pr.catch(() => {});
     } catch (e) {
-      /* 播放失败就等兜底定时器 */
+      /* 交给兜底定时器 */
     }
+    return true;
+  }
+
+  // 1) 右上角「大狗」：换图 + 叫声
+  barkBtn?.addEventListener('click', () => play('bark'));
+
+  // 2) 点最开始的狗：刀盾音效 + 压缩/拉伸
+  canvas?.addEventListener('click', (e) => {
+    const r = getHero()?.baseRect?.();
+    if (!r) return;
+    const box = canvas.getBoundingClientRect();
+    const nx = (e.clientX - box.left) / box.width;
+    const ny = (e.clientY - box.top) / box.height;
+    const pad = 0.04;   // 稍微收一点，避免边缘误触
+    if (nx < r.x0 + pad || nx > r.x1 - pad || ny < r.y0 + pad || ny > r.y1 - pad) return;
+    play('knife');
   });
 }
 

@@ -215,6 +215,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
 
   let base, helmet, wire;
   let baseUrl = '';
+  let lastBaseRect = { x0: 0, x1: 1, y0: 0, y1: 1 };
   try {
     const [b, h, w] = await Promise.all([
       loadImage(assets.base),
@@ -328,6 +329,21 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     // contain：以能放进窗口的最大 16:10 舞台为标尺
     const unitPx = (cfg.stage?.mode === 'contain') ? stageW : cw;
 
+    // 底图当前占据的归一化矩形（点击狗身用）
+    {
+      const bl = cfg.layout?.base || { w: 0.62, y: 0 };
+      const bwPx = (bl.w ?? 0.62) * unitPx;
+      const bhPx = bwPx / (base.w / base.h);
+      const bcx = (bl.x ?? 0) * unitPx;
+      const bcy = (bl.y ?? 0) * unitPx;
+      lastBaseRect = {
+        x0: 0.5 + (bcx - bwPx / 2) / cw,
+        x1: 0.5 + (bcx + bwPx / 2) / cw,
+        y0: 0.5 - (bcy + bhPx / 2) / ch,
+        y1: 0.5 - (bcy - bhPx / 2) / ch,
+      };
+    }
+
     const opac = cfg.opacity || {};
     const ccfg = cfg.contour || {};
     const bcfg = cfg.background || {};
@@ -406,6 +422,8 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
   return {
     fallback: false,
     setBase,
+    // 底图当前占据的归一化矩形，用于判断点击是否落在狗身上
+    baseRect: () => lastBaseRect,
     // nx, ny 为 0..1 的画布归一化坐标；inside 表示指针是否在封面上
     // instant=true 时立即到位（用于调试/截图）
     setPointer(nx, ny, inside, instant) {

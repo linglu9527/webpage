@@ -171,6 +171,7 @@ export const MOTION = {
 // 彩蛋素材：点右上角「大狗」时替换底图并播放叫声
 ASSETS.bark = 'assets/bark.wav';
 ASSETS.heroBark = 'assets/portrait-bark.png';
+ASSETS.knife = 'assets/knife.wav';
 
 export const HERO = {
   // 舞台：所有图层共用同一标尺，窗口变化时整体等比缩放（三层永久锁定）

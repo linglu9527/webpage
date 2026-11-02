@@ -782,3 +782,21 @@ body.is-booted .char { opacity: 1; transform: none; }
 /* 叫的时候整幅画面轻微一顶 */
 body.is-barking .hero__canvas { transform: scale(1.015); }
 .hero__canvas { transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+
+/* 点狗时的压缩/拉伸：先压扁再拉长，循环播放期间反复 */
+@keyframes dogSquash {
+  0%   { transform: scale(1, 1); }
+  14%  { transform: scale(1.05, 0.86); }
+  32%  { transform: scale(0.96, 1.10); }
+  52%  { transform: scale(1.03, 0.94); }
+  72%  { transform: scale(0.99, 1.05); }
+  100% { transform: scale(1, 1); }
+}
+
+body.is-knife .hero__canvas {
+  animation: dogSquash 1.25s cubic-bezier(.35, .7, .35, 1) infinite;
+  transform-origin: 50% 62%;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.is-knife .hero__canvas { animation: none; }
+}
