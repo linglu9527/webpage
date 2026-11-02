@@ -622,9 +622,16 @@ function initBark() {
     getHero()?.startShake?.(MAX_HOLD + 400);
 
     const a = (cache.press = cache.press || new Audio(sources.press));
-    a.loop = true;
+    a.loop = false;                       // 不循环：按住多久放多久
     a.volume = VOLUME.press ?? 0.85;
     try { a.currentTime = 0; } catch (e) {}
+    // 只有按住时间超过音频本身长度，才从头再放一段（补齐差值）
+    a.onended = () => {
+      if (!pressing) return;
+      try { a.currentTime = 0; } catch (e) {}
+      const again = a.play();
+      if (again && again.catch) again.catch(() => {});
+    };
     const pr = a.play();
     if (pr && pr.catch) pr.catch(() => {});
 
@@ -644,12 +651,21 @@ function initBark() {
     stopPressLoop();
     resetFade();
 
-    // 第二段：播放时长 = 按住时长（不够就循环补齐）
+    // 第二段：正常播放，时长 = 按住时长；超过音频长度才续播
     const b = (cache.release = cache.release || new Audio(sources.release));
-    b.loop = true;
-    b.volume = VOLUME.release ?? 0.6;
+    b.loop = false;
+    b.volume = VOLUME.release ?? 0.75;
     b.playbackRate = 1;
     try { b.currentTime = 0; } catch (e) {}
+
+    const releaseEnd = performance.now() + heldMs;
+    b.onended = () => {
+      if (performance.now() >= releaseEnd) return;
+      try { b.currentTime = 0; } catch (e) {}
+      const again = b.play();
+      if (again && again.catch) again.catch(() => {});
+    };
+
     const bp = b.play();
     if (bp && bp.catch) bp.catch(() => {});
 
