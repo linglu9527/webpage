@@ -375,12 +375,91 @@ function initBark() {
   const barkSrc = ASSETS.heroBark || 'assets/portrait-bark.png';
   const baseSrc = ASSETS.hero?.base || 'assets/portrait.png';
   const FALLBACK_MS = 6800;
+  const VOLUME = { bark: 0.45, knife: 0.75 };   // 叫声音量压下来
+  const FADE_MS = 700;                          // 结尾缓出时长
 
   const sources = {
     bark: ASSETS.bark || 'assets/bark.wav',
     knife: ASSETS.knife || 'assets/knife.wav',
   };
   const cache = {};
+  let fadeTimer = 0;
+  let fadeRaf = 0;
+  let actx = null;
+
+  /* 用 Web Audio 的增益包络做缓出：跑在音频线程，切标签页也不会停 */
+  function audioCtx() {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      actx = new C();
+    }
+    return actx;
+  }
+
+  function attachGain(a) {
+    if (a.__gain) return a.__gain;
+    const ctx = audioCtx();
+    if (!ctx) return null;
+    const src = ctx.createMediaElementSource(a);
+    const gain = ctx.createGain();
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    a.__gain = gain;
+    a.__ctx = ctx;
+    return gain;
+  }
+
+  async function scheduleFadeWebAudio(a, kind) {
+    const ctx = audioCtx();
+    if (!ctx) return false;
+
+    // 没拿到运行中的上下文就绝不接管音频，否则会变成静音
+    try { await ctx.resume(); } catch (e) {}
+    if (ctx.state !== 'running') return false;
+
+    const gain = attachGain(a);
+    if (!gain) return false;
+
+    const now = ctx.currentTime;
+    const totalMs = isFinite(a.duration) && a.duration > 0
+      ? a.duration * 1000
+      : FALLBACK_MS - 300;
+    const restMs = totalMs - (a.currentTime || 0) * 1000 - FADE_MS;
+    const fadeStart = now + Math.max(0, restMs) / 1000;
+
+    // 音量由元素的 volume 决定，这里只做 1 → 0 的尾部包络
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(1, now);
+    gain.gain.setValueAtTime(1, fadeStart);
+    gain.gain.linearRampToValueAtTime(0.0001, fadeStart + FADE_MS / 1000);
+    return true;
+  }
+
+  function scheduleFade(a) {
+    clearTimeout(fadeTimer);
+    const known = isFinite(a.duration) && a.duration > 0;
+    const totalMs = known ? a.duration * 1000 : FALLBACK_MS - 300;
+    const rest = totalMs - (a.currentTime || 0) * 1000 - FADE_MS;
+    fadeTimer = setTimeout(() => fadeOut(a, FADE_MS), Math.max(0, rest));
+    if (!known) {
+      a.addEventListener('loadedmetadata', () => scheduleFade(a), { once: true });
+    }
+  }
+
+  function resetFade() {
+    clearTimeout(fadeTimer);
+    cancelAnimationFrame(fadeRaf);
+    for (const k of Object.keys(cache)) {
+      const a = cache[k];
+      if (a && a.__gain && a.__ctx) {
+        try {
+          a.__gain.gain.cancelScheduledValues(a.__ctx.currentTime);
+          a.__gain.gain.setValueAtTime(1, a.__ctx.currentTime);
+        } catch (e) {}
+      }
+    }
+  }
 
   let timer = 0;
   let busy = false;          // 两款音效互斥：一个没播完，另一个不响应
@@ -395,6 +474,7 @@ function initBark() {
     if (!busy) return;
     busy = false;
     clearTimeout(timer);
+    resetFade();
     document.body.classList.remove('is-barking', 'is-knife');
     setLayers(false);
     if (getHero()?.setBase) getHero().setBase(baseSrc);
@@ -427,6 +507,17 @@ function initBark() {
       const a = (cache[kind] = cache[kind] || new Audio(sources[kind]));
       a.onended = restore;
       a.currentTime = 0;
+      a.volume = VOLUME[kind] ?? 0.6;
+
+      // 结尾前 FADE_MS 开始缓出（时长未知时先按兜底排，metadata 到位后校正）
+      if (kind === 'bark') {
+        // 叫声必须缓出；Web Audio 不可用时退回定时器方案
+        scheduleFadeWebAudio(a, kind)
+          .then((ok) => { if (!ok) scheduleFade(a); })
+          .catch(() => scheduleFade(a));
+      } else {
+        scheduleFade(a);
+      }
       const pr = a.play();
       if (pr && typeof pr.catch === 'function') pr.catch(() => {});
     } catch (e) {
@@ -434,6 +525,14 @@ function initBark() {
     }
     return true;
   }
+
+  // 预加载，确保点击时 duration 已知（否则缓出会落在音频结束之后）
+  ['bark', 'knife'].forEach((k) => {
+    const a = new Audio(sources[k]);
+    a.preload = 'auto';
+    try { a.load(); } catch (e) {}
+    cache[k] = a;
+  });
 
   // 1) 右上角「大狗」：换图 + 叫声
   barkBtn?.addEventListener('click', () => play('bark'));
