@@ -215,6 +215,9 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
 
   let base, helmet, wire;
   let baseUrl = '';
+  // 左右摇晃：只作用于底图，结束前 300ms 归位
+  const shake = { rot: 0, active: false, start: 0, dur: 0, amp: 0.030, period: 760 };
+
   // 挤压/拉伸：只作用于底图，背景不受影响
   const squash = { x: 1, y: 1, active: false, start: 0, dur: 0 };
   const SQUASH_KEYS = [
@@ -314,7 +317,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(vao);
 
-    const drawLayer = (prog, texInfo, conf, frag, alpha = 1, sqY = 1, sqX = 1) => {
+    const drawLayer = (prog, texInfo, conf, frag, alpha = 1, sqY = 1, sqX = 1, rot = 0) => {
       gl.useProgram(prog);
       gl.enableVertexAttribArray(gl.getAttribLocation(prog, 'aPos'));
       gl.vertexAttribPointer(gl.getAttribLocation(prog, 'aPos'), 2, gl.FLOAT, false, 0, 0);
@@ -324,6 +327,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       const sy = (wFrac * cw / (texInfo.w / texInfo.h)) / ch;
 
       gl.uniform2f(loc(prog, 'uScale'), sx * sqX, sy * sqY);
+      gl.uniform1f(loc(prog, 'uRot'), rot);
       // 统一标尺：x/y 都按画布宽度换算，改窗口大小时三层一起缩放，永不散位
       gl.uniform2f(loc(prog, 'uOffset'),
         ((conf.x ?? 0) * unitPx) / cw,
@@ -346,6 +350,20 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     // width：以画布宽度为标尺（默认，构图随窗口等比缩放）
     // contain：以能放进窗口的最大 16:10 舞台为标尺
     const unitPx = (cfg.stage?.mode === 'contain') ? stageW : cw;
+
+    // 摇晃动画（仅底图）：最后 300ms 内幅度衰减到 0
+    if (shake.active) {
+      const el = performance.now() - shake.start;
+      if (el > shake.dur) {
+        shake.active = false;
+        shake.rot = 0;
+      } else {
+        const fade = Math.min(1, Math.max(0, (shake.dur - el) / 300));
+        shake.rot = Math.sin((el / shake.period) * Math.PI * 2) * shake.amp * fade;
+      }
+    } else if (shake.rot !== 0) {
+      shake.rot = 0;
+    }
 
     // 挤压动画（仅底图）
     if (squash.active) {
@@ -397,7 +415,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
-    drawLayer(progBase, base, layout.base || { w: 0.66, y: -0.16 }, null, opac.base ?? 1, squash.y, squash.x);
+    drawLayer(progBase, base, layout.base || { w: 0.66, y: -0.16 }, null, opac.base ?? 1, squash.y, squash.x, shake.rot);
 
     drawLayer(progHelmet, helmet, layout.helmet || { w: 0.3, y: 0.2 }, (p) => {
       gl.uniform2f(loc(p, 'uRes'), cw, ch);
@@ -457,6 +475,17 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       squash.active = true;
       squash.start = performance.now();
       squash.dur = ms;
+    },
+    startShake(ms = 0, amp = 0.030) {
+      shake.active = true;
+      shake.start = performance.now();
+      shake.dur = ms;
+      shake.amp = amp;
+    },
+    stopShake() {
+      shake.active = false;
+      shake.rot = 0;
+      render();
     },
     stopSquash() {
       squash.active = false;

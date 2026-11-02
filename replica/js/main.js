@@ -399,6 +399,7 @@ function initBark() {
     setLayers(false);
     if (getHero()?.setBase) getHero().setBase(baseSrc);
     getHero()?.stopSquash?.();
+    getHero()?.stopShake?.();
   }
 
   function play(kind) {
@@ -410,6 +411,13 @@ function initBark() {
     document.body.classList.add(kind === 'bark' ? 'is-barking' : 'is-knife');
     setLayers(true);
     if (kind === 'bark' && getHero()?.setBase) getHero().setBase(barkSrc);
+    if (kind === 'bark') {
+      // 时长未知时先用兜底值，音频拿到 metadata 后再校正
+      const ms = cache.bark && isFinite(cache.bark.duration) && cache.bark.duration > 0
+        ? cache.bark.duration * 1000
+        : FALLBACK_MS - 300;
+      getHero()?.startShake?.(ms);
+    }
     if (kind === 'knife') getHero()?.startSquash?.();
 
     // 先挂兜底定时器，再播音频（音频被拒也不会一直不回位）
