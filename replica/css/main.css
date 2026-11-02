@@ -797,3 +797,51 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
 @media (prefers-reduced-motion: reduce) {
   body.is-knife .hero__canvas { animation: none; }
 }
+
+/* 左下角：线描框 + 狗狗图（点击与右上角「大狗」并联） */
+.hero__corner--pet {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+}
+
+.pet__frame {
+  display: block;
+  width: clamp(52px, 6vw, 82px);
+  aspect-ratio: 1 / 1;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  overflow: hidden;
+  opacity: .92;
+  transition: transform .3s cubic-bezier(.2, .7, .2, 1), opacity .3s ease;
+}
+.pet__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(.15) contrast(1.05);
+  transition: filter .3s ease;
+}
+.hero__corner--pet:hover .pet__frame { transform: translateY(-2px) rotate(-1.5deg); opacity: 1; }
+.hero__corner--pet:hover .pet__img { filter: grayscale(0) contrast(1.1); }
+.hero__corner--pet:active .pet__frame { transform: scale(.97); }
+.hero__corner--pet:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+.pet__label {
+  font-size: clamp(9px, .78vw, 11px);
+  letter-spacing: .18em;
+  white-space: nowrap;
+}
+body.is-barking .pet__label { color: var(--accent); }

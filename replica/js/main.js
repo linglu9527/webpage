@@ -375,7 +375,7 @@ function initBark() {
   const barkSrc = ASSETS.heroBark || 'assets/portrait-bark.png';
   const baseSrc = ASSETS.hero?.base || 'assets/portrait.png';
   const FALLBACK_MS = 6800;
-  const VOLUME = { bark: 0.45, knife: 0.75 };   // 叫声音量压下来
+  const VOLUME = { bark: 0.10, knife: 0.55 };   // bark ≈ -20 dB
   const FADE_MS = 700;                          // 结尾缓出时长
 
   const sources = {
@@ -470,12 +470,19 @@ function initBark() {
       : { base: 1, helmet: 1, wire: 1 };
   };
 
+  const petBtn = $('[data-pet]');
+  const petImg = petBtn && petBtn.querySelector('.pet__img');
+  const petLabel = petBtn && petBtn.querySelector('[data-pet-label]');
+  const PET_REST = { src: 'assets/dog-a.jpg', text: '大狗大狗' };
+
   function restore() {
     if (!busy) return;
     busy = false;
     clearTimeout(timer);
     resetFade();
     document.body.classList.remove('is-barking', 'is-knife');
+    if (petImg && petImg.dataset.srcRest) petImg.src = petImg.dataset.srcRest;
+    if (petLabel) petLabel.textContent = '大狗大狗';
     setLayers(false);
     if (getHero()?.setBase) getHero().setBase(baseSrc);
     getHero()?.stopSquash?.();
@@ -537,7 +544,15 @@ function initBark() {
   // 1) 右上角「大狗」：换图 + 叫声
   barkBtn?.addEventListener('click', () => play('bark'));
 
-  // 2) 点最开始的狗：刀盾音效 + 压缩/拉伸
+  // 2) 左下角线描框：换图 + 文字 大狗大狗 -> 叫叫叫，和大狗叫声并联
+  petBtn?.addEventListener('click', () => {
+    if (busy) return;
+    if (petImg && petImg.dataset.srcBark) petImg.src = petImg.dataset.srcBark;
+    if (petLabel) petLabel.textContent = '叫叫叫';
+    play('bark');
+  });
+
+  // 3) 点最开始的狗：刀盾音效 + 压缩/拉伸
   canvas?.addEventListener('click', (e) => {
     const r = getHero()?.baseRect?.();
     if (!r) return;
