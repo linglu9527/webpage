@@ -169,6 +169,8 @@ export const MOTION = {
  * reveal      鼠标附近显现的半径范围与缓动（min→max 需要停留才会长大）
  * ------------------------------------------------------------------------- */
 export const HERO = {
+  // 舞台：所有图层共用同一标尺，窗口变化时整体等比缩放（三层永久锁定）
+  stage: { aspect: 1.6, mode: 'contain' },  // contain: 取 min(宽, 高×aspect) 作标尺，保证完整可见
   layout: {
     base:   { w: 0.66, y: -0.16 },
     helmet: { w: 0.30, y: 0.20 },

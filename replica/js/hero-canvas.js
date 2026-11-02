@@ -95,7 +95,7 @@ uniform float uOpacity;  // 图层透明度（对齐工具用）
 
 void main(){
   vec4 t = texture(uTex, vUv);
-  vec2 p = (gl_FragCoord.xy - uMousePx) / uRes.y;
+  vec2 p = (gl_FragCoord.xy - uMousePx) / uRes.x;
   float d = length(p);
   // 中间实、边缘虚
   float mask = smoothstep(uRadius, uRadius * 0.12, d) * uReveal;
@@ -151,7 +151,7 @@ void main(){
   float env = fadeIn * fadeOut;
 
   /* 鼠标靠近时线描退场，让位给彩色头盔 */
-  vec2 mp = (gl_FragCoord.xy - uMousePx) / uRes.y;
+  vec2 mp = (gl_FragCoord.xy - uMousePx) / uRes.x;
   float md = length(mp);
   float suppress = smoothstep(0.34, 0.12, md);
 
@@ -303,7 +303,10 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       const sy = (wFrac * cw / (texInfo.w / texInfo.h)) / ch;
 
       gl.uniform2f(loc(prog, 'uScale'), sx, sy);
-      gl.uniform2f(loc(prog, 'uOffset'), conf.x ?? 0, conf.y ?? 0);
+      // 统一标尺：x/y 都按画布宽度换算，改窗口大小时三层一起缩放，永不散位
+      gl.uniform2f(loc(prog, 'uOffset'),
+        ((conf.x ?? 0) * unitPx) / cw,
+        ((conf.y ?? 0) * unitPx) / ch);
 
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texInfo.tex);
@@ -314,6 +317,14 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
+
+    // ---- 舞台标尺：所有图层的尺寸与偏移都乘以它 ----
+    const stageAspect = cfg.stage?.aspect ?? 1.6;
+    let stageW = cw, stageH = cw / stageAspect;
+    if (stageH > ch) { stageH = ch; stageW = ch * stageAspect; }
+    // width：以画布宽度为标尺（默认，构图随窗口等比缩放）
+    // contain：以能放进窗口的最大 16:10 舞台为标尺
+    const unitPx = (cfg.stage?.mode === 'contain') ? stageW : cw;
 
     const opac = cfg.opacity || {};
     const ccfg = cfg.contour || {};
