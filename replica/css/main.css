@@ -673,3 +673,71 @@ body.is-booted .char { opacity: 1; transform: none; }
   letter-spacing: 0.16em;
   opacity: .75;
 }
+
+/* ==================================================================
+   区块图形：赛道电路图 / 联名标记 / 社媒图标
+   ================================================================== */
+.h-panel { position: relative; }
+
+.h-panel__map {
+  position: absolute;
+  top: clamp(12px, 1.8vw, 24px);
+  right: clamp(12px, 1.8vw, 24px);
+  width: clamp(104px, 10vw, 168px);
+  color: var(--accent);
+  opacity: .42;
+  pointer-events: none;
+  transition: opacity .45s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+}
+.h-panel:hover .h-panel__map { opacity: .85; transform: rotate(-5deg) scale(1.05); }
+
+.circuit { display: block; width: 100%; height: auto; }
+
+/* 联名列表 */
+.list__mark {
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  opacity: .7;
+  margin-right: clamp(10px, 1.6vw, 22px);
+  transition: opacity .3s ease, transform .5s cubic-bezier(.2, .7, .2, 1);
+}
+.list__row:hover .list__mark { opacity: 1; transform: rotate(12deg); }
+.mark { display: block; width: clamp(26px, 3vw, 44px); height: auto; }
+.list__name { flex: 1; }
+.list__no { font-size: 12px; letter-spacing: .16em; opacity: .5; }
+
+/* 社媒图标 */
+.social__label { display: flex; align-items: center; gap: 10px; }
+.social__glyph { display: inline-flex; }
+.social__glyph svg { width: 22px; height: 22px; display: block; opacity: .85; }
+
+/* 横向赛道区顶部标题 */
+.h-head {
+  position: absolute;
+  top: clamp(60px, 10vh, 128px);
+  left: var(--pad);
+  right: var(--pad);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+.h-head__meta {
+  display: flex;
+  gap: clamp(16px, 3vw, 52px);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: .45;
+}
+@media (max-width: 700px) {
+  .h-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
+/* 横向区：卡片下沉，与顶部标题形成上下呼应 */
+.h-sticky {
+  align-items: flex-end;
+  box-sizing: border-box;
+  padding-bottom: clamp(56px, 9vh, 110px);
+}

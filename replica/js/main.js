@@ -21,6 +21,7 @@ import { PALETTE, ASSETS, CONTENT, MOTION, LINKS, HERO } from './config.js';
 import { Scroll, elementProgress } from './scroll.js';
 import { createHead } from './head-gl.js';
 import { HELMET, posterSVG } from './graphics.js';
+import { circuitSVG, markSVG, socialSVG } from './block-graphics.js';
 import { createHeroCanvas } from './hero-canvas.js';
 
 const $  = (s, r = document) => r.querySelector(s);
@@ -106,9 +107,9 @@ function renderCollections() {
 
   const panelHost = $('[data-list="trackPanels"]');
   if (panelHost) {
-    CONTENT.track.panels.forEach(p => {
+    CONTENT.track.panels.forEach((p, i) => {
       const d = el('article', 'h-panel');
-      d.innerHTML = `<div class="h-panel__no">${p.no}</div>
+      d.innerHTML = `<div class="h-panel__no">${p.no}</div><div class="h-panel__map">${circuitSVG(i)}</div>
         <h3>${p.title}</h3>
         <div class="eyebrow">${p.meta}</div>
         <p class="body-sm" style="margin-top:14px">${p.text}</p>`;
@@ -142,7 +143,7 @@ function renderCollections() {
       const d = el('a', 'list__row');
       d.href = '#';
       d.setAttribute('data-reveal', '');
-      d.innerHTML = `<span>${name}</span><span>${String(i + 1).padStart(2, '0')}</span>`;
+      d.innerHTML = `<span class="list__mark">${markSVG(i)}</span><span class="list__name">${name}</span><span class="list__no">${String(i + 1).padStart(2, '0')}</span>`;
       collabHost.appendChild(d);
     });
   }
@@ -157,7 +158,7 @@ function renderCollections() {
       d.innerHTML = (poster
         ? `<img class="social__poster" src="${poster}" alt="">`
         : posterSVG(i, { kind: i % 3, label: '', invert: i % 2 === 1 })) +
-        `<span class="social__label">${name}</span>`;
+        `<span class="social__label"><span class="social__glyph">${socialSVG(name)}</span>${name}</span>`;
       socialHost.appendChild(d);
     });
   }
