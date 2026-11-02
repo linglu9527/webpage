@@ -606,6 +606,41 @@ function initBark() {
   });
 }
 
+
+/* ---------------------------------------------------------------- 标题填充
+   鼠标进入时，每个字母从左上角斜向填充成 #7B7571（白底 + 黑描边）
+   ------------------------------------------------------------------------ */
+function initTitleFill() {
+  try {
+    const title = $('.hero__title');
+    if (!title || title.dataset.filled === '1') return;
+
+    const text = (title.textContent || '').trim();
+    if (!text) return;
+
+    const frag = document.createDocumentFragment();
+    let i = 0;
+    for (const ch of [...text]) {
+      if (ch === ' ') {
+        frag.appendChild(document.createTextNode('\u00A0'));
+        continue;
+      }
+      const span = document.createElement('span');
+      span.className = 'tchar';          // 不用 .char，避免和入场动画冲突
+      span.textContent = ch;
+      span.dataset.char = ch;
+      span.style.setProperty('--d', `${i * 38}ms`);
+      frag.appendChild(span);
+      i++;
+    }
+    title.textContent = '';
+    title.appendChild(frag);
+    title.dataset.filled = '1';
+  } catch (e) {
+    console.warn('[title-fill]', e);
+  }
+}
+
 function initSectionArt() {
   const on = $('[data-art="on-track"]');
   if (on) on.innerHTML = circuitSVG(21, { size: 240 });
@@ -867,6 +902,7 @@ async function boot() {
   initMotion(scroll);
   initReveals();
   initBark();
+  initTitleFill();
   initSectionArt();
   initCountdown();
   initTransitions();
