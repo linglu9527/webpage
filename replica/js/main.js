@@ -475,14 +475,56 @@ function initBark() {
   const petLabel = petBtn && petBtn.querySelector('[data-pet-label]');
   const PET_REST = { src: 'assets/dog-a.jpg', text: '大狗大狗' };
 
+  /* 让标签整行宽度精确等于图片宽度：按字数定字号，再用字距补差 */
+  function textWidthOf(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const w = range.getBoundingClientRect().width;
+    range.detach && range.detach();
+    return w;
+  }
+
+  function fitPetLabel() {
+    if (!petImg || !petLabel) return;
+    const target = petImg.getBoundingClientRect().width;
+    if (!target) return;
+
+    const text = (petLabel.textContent || '').trim();
+    const n = [...text].length || 1;
+
+    // 先给一个接近的字号，再迭代两次字距，误差 < 0.3px
+    petLabel.style.letterSpacing = '0px';
+    petLabel.style.marginRight = '0px';
+    petLabel.style.fontSize = Math.max(9, (target / n) * 0.9).toFixed(2) + 'px';
+
+    for (let i = 0; i < 2; i++) {
+      const w = textWidthOf(petLabel);
+      const ls = (target - w) / n;
+      const cur = parseFloat(getComputedStyle(petLabel).letterSpacing) || 0;
+      petLabel.style.letterSpacing = (cur + ls).toFixed(3) + 'px';
+    }
+
+    // 末位多余字距补偿，保证视觉居中
+    const ls = parseFloat(getComputedStyle(petLabel).letterSpacing) || 0;
+    petLabel.style.marginRight = (-ls).toFixed(3) + 'px';
+  }
+
+  const setPet = (barking) => {
+    if (petImg) petImg.src = barking ? petImg.dataset.srcBark : PET_REST.src;
+    if (petLabel) petLabel.textContent = barking ? '叫叫叫' : PET_REST.text;
+    fitPetLabel();
+  };
+
+  fitPetLabel();
+  window.addEventListener('resize', fitPetLabel);
+
   function restore() {
     if (!busy) return;
     busy = false;
     clearTimeout(timer);
     resetFade();
     document.body.classList.remove('is-barking', 'is-knife');
-    if (petImg && petImg.dataset.srcRest) petImg.src = petImg.dataset.srcRest;
-    if (petLabel) petLabel.textContent = '大狗大狗';
+    setPet(false);
     setLayers(false);
     if (getHero()?.setBase) getHero().setBase(baseSrc);
     getHero()?.stopSquash?.();
@@ -547,8 +589,7 @@ function initBark() {
   // 2) 左下角线描框：换图 + 文字 大狗大狗 -> 叫叫叫，和大狗叫声并联
   petBtn?.addEventListener('click', () => {
     if (busy) return;
-    if (petImg && petImg.dataset.srcBark) petImg.src = petImg.dataset.srcBark;
-    if (petLabel) petLabel.textContent = '叫叫叫';
+    setPet(true);
     play('bark');
   });
 

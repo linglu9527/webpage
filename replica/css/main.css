@@ -798,50 +798,59 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   body.is-knife .hero__canvas { animation: none; }
 }
 
-/* 左下角：线描框 + 狗狗图（点击与右上角「大狗」并联） */
+/* 左下角：线描框包住图片 + 文字，图片距框 5px，文字宽度与图片一致 */
 .hero__corner--pet {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  cursor: pointer;
-  pointer-events: auto;
+  display: block;
   background: none;
   border: 0;
   padding: 0;
   margin: 0;
   color: inherit;
   font: inherit;
-  letter-spacing: inherit;
-  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  text-align: center;
 }
 
-.pet__frame {
-  display: block;
-  width: clamp(52px, 6vw, 82px);
-  aspect-ratio: 1 / 1;
+.pet__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;                      /* 线框到图片 / 文字的间距 */
   border: 1px solid currentColor;
-  border-radius: 2px;
-  overflow: hidden;
-  opacity: .92;
-  transition: transform .3s cubic-bezier(.2, .7, .2, 1), opacity .3s ease;
+  border-radius: 3px;
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1), border-color .3s ease;
+  will-change: transform;
 }
+
 .pet__img {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: clamp(74px, 7.6vw, 104px);
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-  filter: grayscale(.15) contrast(1.05);
-  transition: filter .3s ease;
+  border-radius: 1px;
+  filter: grayscale(.12) contrast(1.04);
+  transition: filter .35s ease;
 }
-.hero__corner--pet:hover .pet__frame { transform: translateY(-2px) rotate(-1.5deg); opacity: 1; }
-.hero__corner--pet:hover .pet__img { filter: grayscale(0) contrast(1.1); }
-.hero__corner--pet:active .pet__frame { transform: scale(.97); }
-.hero__corner--pet:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
 .pet__label {
-  font-size: clamp(9px, .78vw, 11px);
-  letter-spacing: .18em;
+  display: block;
+  width: 100%;
+  text-align: center;
   white-space: nowrap;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;                  /* 由 JS 精确调到与图片等宽 */
 }
+
+.hero__corner--pet:hover .pet__box {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+.hero__corner--pet:hover .pet__img { filter: grayscale(0) contrast(1.08); }
+.hero__corner--pet:active .pet__box { transform: scale(.975); }
+.hero__corner--pet:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+body.is-barking .pet__box { border-color: var(--accent); }
 body.is-barking .pet__label { color: var(--accent); }
