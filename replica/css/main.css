@@ -798,7 +798,27 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   body.is-knife .hero__canvas { animation: none; }
 }
 
-/* 左下角：线描框包住图片 + 文字，图片距框 5px，文字宽度与图片一致 */
+/* 左下角：虚线卡片，待机轻转，点击后震动 + 文字跳动 */
+@keyframes cardFloat {
+  0%   { transform: rotate(-2.4deg) translateY(0); }
+  50%  { transform: rotate(2.4deg) translateY(-4px); }
+  100% { transform: rotate(-2.4deg) translateY(0); }
+}
+
+@keyframes cardShake {
+  0%   { transform: rotate(-1.8deg) translate(0, 0); }
+  22%  { transform: rotate(1.9deg) translate(1px, -1px); }
+  45%  { transform: rotate(-1.5deg) translate(-1px, 1px); }
+  70%  { transform: rotate(1.6deg) translate(1px, 0); }
+  100% { transform: rotate(-1.8deg) translate(0, 0); }
+}
+
+@keyframes labelBounce {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  35%      { transform: translateY(-5px) scaleY(1.06); }
+  70%      { transform: translateY(1px) scaleY(0.95); }
+}
+
 .hero__corner--pet {
   display: block;
   background: none;
@@ -810,6 +830,8 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   cursor: pointer;
   pointer-events: auto;
   text-align: center;
+  transform-origin: 50% 100%;
+  animation: cardFloat 5.2s ease-in-out infinite;
 }
 
 .pet__box {
@@ -817,11 +839,10 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 5px;                      /* 线框到图片 / 文字的间距 */
-  border: 1px solid currentColor;
-  border-radius: 3px;
+  padding: 5px;                       /* 线框到图片 / 文字的间距 */
+  border: 2px dashed currentColor;    /* 虚线 + 加粗 */
+  border-radius: 4px;
   transition: transform .35s cubic-bezier(.2, .7, .2, 1), border-color .3s ease;
-  will-change: transform;
 }
 
 .pet__img {
@@ -842,15 +863,25 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0;                  /* 由 JS 精确调到与图片等宽 */
+  transform-origin: 50% 100%;
 }
 
-.hero__corner--pet:hover .pet__box {
-  transform: translateY(-3px);
-  border-color: var(--accent);
-}
+.hero__corner--pet:hover { animation-play-state: paused; }
+.hero__corner--pet:hover .pet__box { transform: translateY(-3px); border-color: var(--accent); }
 .hero__corner--pet:hover .pet__img { filter: grayscale(0) contrast(1.08); }
 .hero__corner--pet:active .pet__box { transform: scale(.975); }
 .hero__corner--pet:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
+/* 点击之后：卡片高频震动，文字上下跳 */
+body.is-barking .hero__corner--pet { animation: cardShake .16s linear infinite; }
 body.is-barking .pet__box { border-color: var(--accent); }
-body.is-barking .pet__label { color: var(--accent); }
+body.is-barking .pet__label {
+  color: var(--accent);
+  animation: labelBounce .34s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__corner--pet,
+  body.is-barking .hero__corner--pet,
+  body.is-barking .pet__label { animation: none; }
+}
