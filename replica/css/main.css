@@ -793,10 +793,7 @@ body.is-barking .hero__canvas { transform: scale(1.015); }
   100% { transform: scale(1, 1); }
 }
 
-body.is-knife .hero__canvas {
-  animation: dogSquash 1.25s cubic-bezier(.35, .7, .35, 1) infinite;
-  transform-origin: 50% 62%;
-}
+/* 挤压动效已改由 WebGL 底图层做（scale 会连背景一起动，不能用） */
 @media (prefers-reduced-motion: reduce) {
   body.is-knife .hero__canvas { animation: none; }
 }

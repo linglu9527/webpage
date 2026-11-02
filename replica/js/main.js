@@ -398,6 +398,7 @@ function initBark() {
     document.body.classList.remove('is-barking', 'is-knife');
     setLayers(false);
     if (getHero()?.setBase) getHero().setBase(baseSrc);
+    getHero()?.stopSquash?.();
   }
 
   function play(kind) {
@@ -409,6 +410,7 @@ function initBark() {
     document.body.classList.add(kind === 'bark' ? 'is-barking' : 'is-knife');
     setLayers(true);
     if (kind === 'bark' && getHero()?.setBase) getHero().setBase(barkSrc);
+    if (kind === 'knife') getHero()?.startSquash?.();
 
     // 先挂兜底定时器，再播音频（音频被拒也不会一直不回位）
     timer = setTimeout(restore, FALLBACK_MS);

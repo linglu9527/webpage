@@ -215,6 +215,24 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
 
   let base, helmet, wire;
   let baseUrl = '';
+  // 挤压/拉伸：只作用于底图，背景不受影响
+  const squash = { x: 1, y: 1, active: false, start: 0, dur: 0 };
+  const SQUASH_KEYS = [
+    [0.00, 1.00], [0.14, 0.86], [0.32, 1.10],
+    [0.52, 0.94], [0.72, 1.05], [1.00, 1.00],
+  ];
+  const squashYAt = (u) => {
+    for (let i = 1; i < SQUASH_KEYS.length; i++) {
+      const [p1, v1] = SQUASH_KEYS[i];
+      if (u <= p1) {
+        const [p0, v0] = SQUASH_KEYS[i - 1];
+        const k = (u - p0) / (p1 - p0 || 1);
+        return v0 + (v1 - v0) * k;
+      }
+    }
+    return 1;
+  };
+
   let lastBaseRect = { x0: 0, x1: 1, y0: 0, y1: 1 };
   try {
     const [b, h, w] = await Promise.all([
@@ -296,7 +314,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(vao);
 
-    const drawLayer = (prog, texInfo, conf, frag, alpha = 1) => {
+    const drawLayer = (prog, texInfo, conf, frag, alpha = 1, sqY = 1, sqX = 1) => {
       gl.useProgram(prog);
       gl.enableVertexAttribArray(gl.getAttribLocation(prog, 'aPos'));
       gl.vertexAttribPointer(gl.getAttribLocation(prog, 'aPos'), 2, gl.FLOAT, false, 0, 0);
@@ -305,7 +323,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       const sx = wFrac;
       const sy = (wFrac * cw / (texInfo.w / texInfo.h)) / ch;
 
-      gl.uniform2f(loc(prog, 'uScale'), sx, sy);
+      gl.uniform2f(loc(prog, 'uScale'), sx * sqX, sy * sqY);
       // 统一标尺：x/y 都按画布宽度换算，改窗口大小时三层一起缩放，永不散位
       gl.uniform2f(loc(prog, 'uOffset'),
         ((conf.x ?? 0) * unitPx) / cw,
@@ -328,6 +346,17 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     // width：以画布宽度为标尺（默认，构图随窗口等比缩放）
     // contain：以能放进窗口的最大 16:10 舞台为标尺
     const unitPx = (cfg.stage?.mode === 'contain') ? stageW : cw;
+
+    // 挤压动画（仅底图）
+    if (squash.active) {
+      const u = ((performance.now() - squash.start) % 1250) / 1250;
+      const y = squashYAt(u);
+      squash.y = y;
+      squash.x = 1 + (1 - y) * 0.45;
+    } else if (squash.y !== 1) {
+      squash.y = 1;
+      squash.x = 1;
+    }
 
     // 底图当前占据的归一化矩形（点击狗身用）
     {
@@ -368,7 +397,7 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
-    drawLayer(progBase, base, layout.base || { w: 0.66, y: -0.16 }, null, opac.base ?? 1);
+    drawLayer(progBase, base, layout.base || { w: 0.66, y: -0.16 }, null, opac.base ?? 1, squash.y, squash.x);
 
     drawLayer(progHelmet, helmet, layout.helmet || { w: 0.3, y: 0.2 }, (p) => {
       gl.uniform2f(loc(p, 'uRes'), cw, ch);
@@ -424,6 +453,17 @@ export async function createHeroCanvas(canvas, cfg = {}, assets = {}) {
     setBase,
     // 底图当前占据的归一化矩形，用于判断点击是否落在狗身上
     baseRect: () => lastBaseRect,
+    startSquash(ms = 0) {
+      squash.active = true;
+      squash.start = performance.now();
+      squash.dur = ms;
+    },
+    stopSquash() {
+      squash.active = false;
+      squash.y = 1;
+      squash.x = 1;
+      render();
+    },
     // nx, ny 为 0..1 的画布归一化坐标；inside 表示指针是否在封面上
     // instant=true 时立即到位（用于调试/截图）
     setPointer(nx, ny, inside, instant) {
