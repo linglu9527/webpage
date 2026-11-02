@@ -375,14 +375,12 @@ function initBark() {
   const barkSrc = ASSETS.heroBark || 'assets/portrait-bark.png';
   const baseSrc = ASSETS.hero?.base || 'assets/portrait.png';
   const FALLBACK_MS = 6800;
-  const VOLUME = { bark: 0.10, knife: 0.55, press: 0.85, release: 0.75 };
+  const VOLUME = { bark: 0.10, knife: 0.55 };   // bark ≈ -20 dB
   const FADE_MS = 700;                          // 结尾缓出时长
 
   const sources = {
     bark: ASSETS.bark || 'assets/bark.wav',
     knife: ASSETS.knife || 'assets/knife.wav',
-    press: 'assets/press-dagou.mp3',
-    release: 'assets/release-jiao.mp3',
   };
   const cache = {};
   let fadeTimer = 0;
@@ -525,7 +523,7 @@ function initBark() {
     busy = false;
     clearTimeout(timer);
     resetFade();
-    document.body.classList.remove('is-barking', 'is-knife', 'is-pressing');
+    document.body.classList.remove('is-barking', 'is-knife');
     setPet(false);
     setLayers(false);
     if (getHero()?.setBase) getHero().setBase(baseSrc);
@@ -589,110 +587,11 @@ function initBark() {
   barkBtn?.addEventListener('click', () => play('bark'));
 
   // 2) 左下角线描框：换图 + 文字 大狗大狗 -> 叫叫叫，和大狗叫声并联
-  /* 长按：按住时第一段音频循环且越来越快，松手播放第二段，播放时长 = 按住时长 */
-  let pressT0 = 0;
-  let pressTimer = 0;
-  let pressRaf = 0;
-  let pressing = false;
-
-  const MAX_HOLD = 9000;      // 最长按住 9 秒
-  const MAX_RATE = 3.2;       // 最高倍速
-
-  function stopPressLoop() {
-    cancelAnimationFrame(pressRaf);
-    clearInterval(pressTimer);
-    const a = cache.press;
-    if (a) {
-      a.pause();
-      try { a.currentTime = 0; } catch (e) {}
-      a.playbackRate = 1;
-    }
-  }
-
-  function startPress() {
-    if (busy || pressing) return;
-    pressing = true;
-    busy = true;
-    pressT0 = performance.now();
-
-    document.body.classList.add('is-barking', 'is-pressing');
+  petBtn?.addEventListener('click', () => {
+    if (busy) return;
     setPet(true);
-    setLayers(true);
-    if (getHero()?.setBase) getHero().setBase(barkSrc);
-    getHero()?.startShake?.(MAX_HOLD + 400);
-
-    const a = (cache.press = cache.press || new Audio(sources.press));
-    a.loop = false;                       // 不循环：按住多久放多久
-    a.volume = VOLUME.press ?? 0.85;
-    try { a.currentTime = 0; } catch (e) {}
-    // 只有按住时间超过音频本身长度，才从头再放一段（补齐差值）
-    a.onended = () => {
-      if (!pressing) return;
-      try { a.currentTime = 0; } catch (e) {}
-      const again = a.play();
-      if (again && again.catch) again.catch(() => {});
-    };
-    const pr = a.play();
-    if (pr && pr.catch) pr.catch(() => {});
-
-    // 倍速逐渐加快
-    pressTimer = setInterval(() => {
-      const held = (performance.now() - pressT0) / 1000;
-      a.playbackRate = Math.min(MAX_RATE, 1 + held * 0.55);
-    }, 60);
-  }
-
-  function endPress() {
-    if (!pressing) return;
-    pressing = false;
-
-    const heldMs = Math.min(MAX_HOLD, performance.now() - pressT0);
-    document.body.classList.remove('is-pressing');
-    stopPressLoop();
-    resetFade();
-
-    // 第二段：正常播放，时长 = 按住时长；超过音频长度才续播
-    const b = (cache.release = cache.release || new Audio(sources.release));
-    b.loop = false;
-    b.volume = VOLUME.release ?? 0.75;
-    b.playbackRate = 1;
-    try { b.currentTime = 0; } catch (e) {}
-
-    const releaseEnd = performance.now() + heldMs;
-    b.onended = () => {
-      if (performance.now() >= releaseEnd) return;
-      try { b.currentTime = 0; } catch (e) {}
-      const again = b.play();
-      if (again && again.catch) again.catch(() => {});
-    };
-
-    const bp = b.play();
-    if (bp && bp.catch) bp.catch(() => {});
-
-    clearTimeout(pressTimerEnd);
-    pressTimerEnd = setTimeout(() => {
-      // 最后 260ms 缓出
-      fadeOut(b, 260);
-      setTimeout(() => {
-        b.pause();
-        try { b.currentTime = 0; } catch (e) {}
-        b.loop = false;
-        restore();
-      }, 280);
-    }, Math.max(120, heldMs - 260));
-  }
-
-  let pressTimerEnd = 0;
-
-  petBtn?.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    petBtn.setPointerCapture?.(e.pointerId);
-    startPress();
+    play('bark');
   });
-  ['pointerup', 'pointercancel'].forEach((evt) => {
-    petBtn?.addEventListener(evt, () => endPress());
-  });
-  petBtn?.addEventListener('pointerleave', () => { if (pressing) endPress(); });
 
   // 3) 点最开始的狗：刀盾音效 + 压缩/拉伸
   canvas?.addEventListener('click', (e) => {
