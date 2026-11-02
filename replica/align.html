@@ -6,35 +6,55 @@
 <title>封面图层对齐工具</title>
 <style>
   html, body { margin: 0; height: 100%; background: #f2efe6; overflow: hidden;
-    font-family: Inter, system-ui, sans-serif; color: #14110d; }
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; color: #14110d; }
   #stage { position: fixed; inset: 0; }
   #stage canvas { width: 100%; height: 100%; display: block; }
 
   #panel {
-    position: fixed; right: 16px; top: 16px; width: 292px;
-    background: rgba(16,14,12,.94); color: #e8e4da; border-radius: 10px;
-    padding: 14px 16px; font-size: 12px; line-height: 1.6;
-    box-shadow: 0 18px 50px rgba(0,0,0,.35); z-index: 10;
-    max-height: calc(100vh - 32px); overflow: auto;
+    position: fixed; right: 14px; top: 14px; width: 306px;
+    background: rgba(16,14,12,.95); color: #e8e4da; border-radius: 12px;
+    padding: 14px 16px 16px; font-size: 12px; line-height: 1.55;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4); z-index: 10;
+    max-height: calc(100vh - 28px); overflow-y: auto;
   }
-  #panel h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: #b23a1f; }
-  .grp { border-top: 1px solid rgba(232,228,218,.16); padding-top: 10px; margin-top: 10px; }
+  #panel h3 { margin: 0 0 4px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #e2603a; }
+  #panel .sub { opacity: .5; font-size: 11px; margin-bottom: 10px; }
+
+  .grp { border-top: 1px solid rgba(232,228,218,.14); padding-top: 10px; margin-top: 10px; }
   .grp:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
-  .row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-  .row label { width: 22px; opacity: .65; }
-  .row input[type=range] { flex: 1; accent-color: #b23a1f; }
-  .row output { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
-  .btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  button {
-    flex: 1; min-width: 88px; cursor: pointer; border: 1px solid rgba(232,228,218,.25);
-    background: transparent; color: #e8e4da; border-radius: 6px; padding: 7px 8px;
-    font-size: 11px; letter-spacing: .08em;
+  .grp__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .grp__name { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+  .grp__name b { color: #e2603a; font-weight: 600; }
+
+  .row { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+  .row > label { width: 14px; opacity: .6; font-size: 11px; }
+  .row input[type=range] { flex: 1; accent-color: #e2603a; min-width: 0; }
+  .row input[type=number] {
+    width: 64px; background: #0b0a08; color: #ffd9c9; border: 1px solid rgba(232,228,218,.22);
+    border-radius: 5px; padding: 3px 5px; font: 11px/1.3 ui-monospace, monospace; text-align: right;
   }
-  button:hover { background: rgba(232,228,218,.1); }
-  button.primary { background: #b23a1f; border-color: #b23a1f; }
-  #out { width: 100%; height: 72px; margin-top: 10px; background: #0b0a08; color: #8fd; border: 1px solid rgba(232,228,218,.16);
-    border-radius: 6px; font: 11px/1.5 ui-monospace, monospace; padding: 8px; resize: vertical; }
-  .hint { opacity: .55; font-size: 11px; margin-top: 8px; }
+  .row input[type=number]:focus { outline: 1px solid #e2603a; }
+
+  .eye { width: 20px; height: 18px; border-radius: 4px; border: 1px solid rgba(232,228,218,.3);
+    background: transparent; color: #e8e4da; font-size: 9px; line-height: 1; cursor: pointer; padding: 0; }
+  .eye.off { opacity: .32; }
+
+  .btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  button.act {
+    flex: 1; min-width: 84px; cursor: pointer; border: 1px solid rgba(232,228,218,.25);
+    background: transparent; color: #e8e4da; border-radius: 6px; padding: 8px; font-size: 11px; letter-spacing: .08em;
+  }
+  button.act:hover { background: rgba(232,228,218,.1); }
+  button.act.primary { background: #e2603a; border-color: #e2603a; color: #14110d; font-weight: 600; }
+
+  .step { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 11px; opacity: .8; }
+  .step input { width: 74px; background: #0b0a08; color: #ffd9c9; border: 1px solid rgba(232,228,218,.22);
+    border-radius: 5px; padding: 3px 5px; font: 11px ui-monospace, monospace; }
+
+  #out { width: 100%; height: 64px; margin-top: 10px; background: #0b0a08; color: #9fe6c4;
+    border: 1px solid rgba(232,228,218,.16); border-radius: 6px;
+    font: 10.5px/1.5 ui-monospace, monospace; padding: 8px; resize: vertical; box-sizing: border-box; }
+  .hint { opacity: .5; font-size: 10.5px; margin-top: 8px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -42,172 +62,259 @@
 
 <div id="panel">
   <h3>图层对齐</h3>
+  <div class="sub">拖动或直接输入数值，自动保存，主页刷新即生效</div>
 
   <div class="grp">
-    <div class="row"><label>W</label><input type="range" id="hw" min="0.05" max="0.8" step="0.002"><output id="hwo"></output></div>
-    <div class="row"><label>X</label><input type="range" id="hx" min="-0.5" max="0.5" step="0.002"><output id="hxo"></output></div>
-    <div class="row"><label>Y</label><input type="range" id="hy" min="-0.6" max="0.6" step="0.002"><output id="hyo"></output></div>
-    <div class="hint">↑ 头盔彩图（图二）</div>
+    <div class="grp__head">
+      <span class="grp__name"><b>02</b> 头盔彩图</span>
+      <button class="eye" data-eye="helmet" title="显示/隐藏">👁</button>
+    </div>
+    <div class="row"><label>W</label><input type="range" id="hw" min="0.05" max="0.8" step="0.001"><input type="number" id="hwn" step="0.001"></div>
+    <div class="row"><label>X</label><input type="range" id="hx" min="-0.5" max="0.5" step="0.001"><input type="number" id="hxn" step="0.001"></div>
+    <div class="row"><label>Y</label><input type="range" id="hy" min="-0.6" max="0.6" step="0.001"><input type="number" id="hyn" step="0.001"></div>
+    <div class="row"><label>α</label><input type="range" id="ho" min="0" max="1" step="0.01"><input type="number" id="hon" step="0.01"></div>
   </div>
 
   <div class="grp">
-    <div class="row"><label>W</label><input type="range" id="ww" min="0.05" max="0.8" step="0.002"><output id="wwo"></output></div>
-    <div class="row"><label>X</label><input type="range" id="wx" min="-0.5" max="0.5" step="0.002"><output id="wxo"></output></div>
-    <div class="row"><label>Y</label><input type="range" id="wy" min="-0.6" max="0.6" step="0.002"><output id="wyo"></output></div>
-    <div class="hint">↑ 线框图（图三）</div>
+    <div class="grp__head">
+      <span class="grp__name"><b>03</b> 线框</span>
+      <button class="eye" data-eye="wire" title="显示/隐藏">👁</button>
+    </div>
+    <div class="row"><label>W</label><input type="range" id="ww" min="0.05" max="0.8" step="0.001"><input type="number" id="wwn" step="0.001"></div>
+    <div class="row"><label>X</label><input type="range" id="wx" min="-0.5" max="0.5" step="0.001"><input type="number" id="wxn" step="0.001"></div>
+    <div class="row"><label>Y</label><input type="range" id="wy" min="-0.6" max="0.6" step="0.001"><input type="number" id="wyn" step="0.001"></div>
+    <div class="row"><label>α</label><input type="range" id="wo" min="0" max="1" step="0.01"><input type="number" id="won" step="0.01"></div>
   </div>
 
   <div class="grp">
-    <div class="row"><label>B</label><input type="range" id="bw" min="0.2" max="1.2" step="0.002"><output id="bwo"></output></div>
-    <div class="row"><label>Y</label><input type="range" id="by" min="-0.5" max="0.5" step="0.002"><output id="byo"></output></div>
-    <div class="hint">↑ 底图（图一）</div>
+    <div class="grp__head">
+      <span class="grp__name"><b>01</b> 底图</span>
+      <button class="eye" data-eye="base" title="显示/隐藏">👁</button>
+    </div>
+    <div class="row"><label>W</label><input type="range" id="bw" min="0.2" max="1.2" step="0.001"><input type="number" id="bwn" step="0.001"></div>
+    <div class="row"><label>X</label><input type="range" id="bx" min="-0.5" max="0.5" step="0.001"><input type="number" id="bxn" step="0.001"></div>
+    <div class="row"><label>Y</label><input type="range" id="by" min="-0.5" max="0.5" step="0.001"><input type="number" id="byn" step="0.001"></div>
   </div>
 
-  <div class="grp">
-    <div class="row"><label>α</label><input type="range" id="ho" min="0" max="1" step="0.01"><output id="hoo"></output></div>
-    <div class="hint">↑ 头盔图透明度（调低可看穿到狗眼）</div>
-    <div class="row"><label>α</label><input type="range" id="wo" min="0" max="1" step="0.01"><output id="woo"></output></div>
-    <div class="hint">↑ 线框图透明度</div>
+  <div class="step">
+    方向键步长 <input type="number" id="step" value="0.002" step="0.001">
   </div>
 
   <div class="btns">
-    <button id="sync">线框=头盔</button>
-    <button id="toggleHelmet">隐藏/显示头盔图</button>
+    <button class="act" id="sync">线框=头盔</button>
+    <button class="act" id="reset">重置</button>
   </div>
   <div class="btns">
-    <button id="reset">重置</button>
-    <button class="primary" id="apply">应用到主页</button>
+    <button class="act" id="solo">只留头盔</button>
+    <button class="act primary" id="apply">保存并应用</button>
   </div>
 
   <textarea id="out" readonly></textarea>
-  <div class="hint">键盘 ← → ↑ ↓ 微调（按住 Shift 更细）；点击画面后可用方向键。</div>
+  <div class="hint">
+    方向键移动头盔层（Shift 更细）<br>
+    点数字框可直接输入精确值
+  </div>
 </div>
 
 <script type="module">
 import { HERO } from './js/config.js';
 import { createHeroCanvas } from './js/hero-canvas.js';
 
-// 读主题里的素材路径
-let assets = { base: 'assets/portrait.png', helmet: 'assets/helmet-doge.png', wire: 'assets/helmet-wire.png' };
+const DEFAULTS = {
+  base: { w: 0.62, x: 0, y: -0.072 },
+  helmet: { w: 0.341, x: 0, y: -0.1376 },
+  wire: { w: 0.341, x: 0, y: -0.1376 },
+};
+
+let assets = {
+  base: 'assets/portrait.png',
+  helmet: 'assets/helmet-doge.png',
+  wire: 'assets/helmet-wire.png',
+};
+
 try {
   const t = await (await fetch('theme.json', { cache: 'no-store' })).json();
   if (t?.ASSETS?.hero) assets = { ...assets, ...t.ASSETS.hero };
-  if (t?.HERO?.layout) Object.assign(HERO.layout, JSON.parse(JSON.stringify(t.HERO.layout)));
+  if (t?.HERO?.layout) {
+    for (const k of ['base', 'helmet', 'wire']) {
+      if (t.HERO.layout[k]) Object.assign(HERO.layout[k], t.HERO.layout[k]);
+    }
+  }
 } catch {}
 
-// 存档优先
 try {
   const saved = JSON.parse(localStorage.getItem('heroLayout') || 'null');
-  if (saved) Object.assign(HERO.layout, saved);
+  if (saved) {
+    for (const k of ['base', 'helmet', 'wire']) {
+      if (saved[k]) Object.assign(HERO.layout[k], saved[k]);
+    }
+  }
 } catch {}
 
-// 显现全开，方便看边界
+// 对齐时三层全显
 HERO.reveal.min = 1.0;
 HERO.reveal.max = 1.0;
+HERO.opacity = { base: 1, helmet: 1, wire: 1 };
 
 const canvas = document.querySelector('#stage canvas');
 const hero = await createHeroCanvas(canvas, HERO, assets);
 hero.setPointer(0.5, 0.5, true, true);
 
 const $ = (id) => document.getElementById(id);
-const S = {
-  hw: $('hw'), hx: $('hx'), hy: $('hy'),
-  ww: $('ww'), wx: $('wx'), wy: $('wy'),
-  bw: $('bw'), by: $('by')
-};
+const L = HERO.layout;
 
-let showHelmet = true;
-HERO.opacity = { helmet: 1, wire: 1, base: 1 };
+const FIELDS = [
+  ['hw', 'hwn', 'helmet', 'w'],
+  ['hx', 'hxn', 'helmet', 'x'],
+  ['hy', 'hyn', 'helmet', 'y'],
+  ['ww', 'wwn', 'wire', 'w'],
+  ['wx', 'wxn', 'wire', 'x'],
+  ['wy', 'wyn', 'wire', 'y'],
+  ['bw', 'bwn', 'base', 'w'],
+  ['bx', 'bxn', 'base', 'x'],
+  ['by', 'byn', 'base', 'y'],
+];
 
-function paintPanel() {
-  const l = HERO.layout;
-  S.hw.value = l.helmet.w; $('hwo').textContent = (+l.helmet.w).toFixed(3);
-  S.hx.value = l.helmet.x ?? 0; $('hxo').textContent = (+(l.helmet.x ?? 0)).toFixed(3);
-  S.hy.value = l.helmet.y; $('hyo').textContent = (+l.helmet.y).toFixed(3);
-  S.ww.value = l.wire.w; $('wwo').textContent = (+l.wire.w).toFixed(3);
-  S.wx.value = l.wire.x ?? 0; $('wxo').textContent = (+(l.wire.x ?? 0)).toFixed(3);
-  S.wy.value = l.wire.y; $('wyo').textContent = (+l.wire.y).toFixed(3);
-  S.bw.value = l.base.w; $('bwo').textContent = (+l.base.w).toFixed(3);
-  S.by.value = l.base.y; $('byo').textContent = (+l.base.y).toFixed(3);
+const OPACITY = [['ho', 'hon', 'helmet'], ['wo', 'won', 'wire']];
 
-  $('ho').value = HERO.opacity.helmet; $('hoo').textContent = (+HERO.opacity.helmet).toFixed(2);
-  $('wo').value = HERO.opacity.wire; $('woo').textContent = (+HERO.opacity.wire).toFixed(2);
+let soloOn = false;
 
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const round = (n) => Math.round((n + Number.EPSILON) * 10000) / 10000;
+
+function writeOut() {
   $('out').value = JSON.stringify({
-    base: { w: +l.base.w.toFixed(3), y: +l.base.y.toFixed(3) },
-    helmet: { w: +l.helmet.w.toFixed(3), x: +(l.helmet.x ?? 0).toFixed(3), y: +l.helmet.y.toFixed(3) },
-    wire: { w: +l.wire.w.toFixed(3), x: +(l.wire.x ?? 0).toFixed(3), y: +l.wire.y.toFixed(3) }
-  }, null, 2);
+    base: { w: round(L.base.w), x: round(L.base.x || 0), y: round(L.base.y) },
+    helmet: { w: round(L.helmet.w), x: round(L.helmet.x || 0), y: round(L.helmet.y) },
+    wire: { w: round(L.wire.w), x: round(L.wire.x || 0), y: round(L.wire.y) },
+  }, null, 0);
 }
 
-function apply() {
-  HERO.layout.helmet.w = +S.hw.value;
-  HERO.layout.helmet.x = +S.hx.value;
-  HERO.layout.helmet.y = +S.hy.value;
-  HERO.layout.wire.w = +S.ww.value;
-  HERO.layout.wire.x = +S.wx.value;
-  HERO.layout.wire.y = +S.wy.value;
-  HERO.layout.base.w = +S.bw.value;
-  HERO.layout.base.y = +S.by.value;
-  paintPanel();
-  hero.render();
+function paint() {
+  for (const [rid, nid, layer, key] of FIELDS) {
+    const v = L[layer][key] ?? 0;
+    $(rid).value = v;
+    $(nid).value = (+v).toFixed(key === 'w' ? 3 : 4);
+  }
+  for (const [rid, nid, layer] of OPACITY) {
+    const v = HERO.opacity[layer] ?? 1;
+    $(rid).value = v;
+    $(nid).value = (+v).toFixed(2);
+  }
+  writeOut();
 }
 
-Object.values(S).forEach((el) => el.addEventListener('input', apply));
+function save() {
+  localStorage.setItem('heroLayout', JSON.stringify({
+    base: { w: L.base.w, x: L.base.x || 0, y: L.base.y },
+    helmet: { w: L.helmet.w, x: L.helmet.x || 0, y: L.helmet.y },
+    wire: { w: L.wire.w, x: L.wire.x || 0, y: L.wire.y },
+  }));
+}
 
-$('ho').addEventListener('input', (e) => {
-  HERO.opacity.helmet = +e.target.value;
-  $('hoo').textContent = (+e.target.value).toFixed(2);
+function commit() {
   hero.render();
-});
-$('wo').addEventListener('input', (e) => {
-  HERO.opacity.wire = +e.target.value;
-  $('woo').textContent = (+e.target.value).toFixed(2);
-  hero.render();
+  writeOut();
+  clearTimeout(commit._t);
+  commit._t = setTimeout(save, 250);
+}
+
+for (const [rid, nid, layer, key] of FIELDS) {
+  const apply = (val) => {
+    const v = clamp(parseFloat(val) || 0, -2, 2);
+    L[layer][key] = v;
+    $(rid).value = v;
+    $(nid).value = (+v).toFixed(key === 'w' ? 3 : 4);
+    commit();
+  };
+  $(rid).addEventListener('input', (e) => apply(e.target.value));
+  $(nid).addEventListener('change', (e) => apply(e.target.value));
+}
+
+for (const [rid, nid, layer] of OPACITY) {
+  const apply = (val) => {
+    const v = clamp(parseFloat(val) || 0, 0, 1);
+    HERO.opacity[layer] = v;
+    $(rid).value = v;
+    $(nid).value = v.toFixed(2);
+    commit();
+  };
+  $(rid).addEventListener('input', (e) => apply(e.target.value));
+  $(nid).addEventListener('change', (e) => apply(e.target.value));
+}
+
+document.querySelectorAll('[data-eye]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const layer = btn.dataset.eye;
+    const on = HERO.opacity[layer] > 0.001;
+    HERO.opacity[layer] = on ? 0 : 1;
+    btn.classList.toggle('off', on);
+    paint();
+    commit();
+  });
 });
 
 $('sync').addEventListener('click', () => {
-  S.ww.value = S.hw.value; S.wx.value = S.hx.value; S.wy.value = S.hy.value;
-  apply();
+  L.wire.w = L.helmet.w;
+  L.wire.x = L.helmet.x || 0;
+  L.wire.y = L.helmet.y;
+  paint();
+  commit();
 });
 
-$('toggleHelmet').addEventListener('click', () => {
-  showHelmet = !showHelmet;
-  HERO.layout.helmet.w = showHelmet ? +S.hw.value : 0.0001;
-  paintPanel();
-  hero.render();
+$('solo').addEventListener('click', () => {
+  soloOn = !soloOn;
+  if (soloOn) {
+    HERO.opacity.base = 1;
+    HERO.opacity.wire = 0;
+    HERO.opacity.helmet = 0.55;
+    $('solo').textContent = '恢复全部';
+  } else {
+    HERO.opacity = { base: 1, helmet: 1, wire: 1 };
+    $('solo').textContent = '只留头盔';
+  }
+  paint();
+  commit();
 });
 
 $('reset').addEventListener('click', () => {
   localStorage.removeItem('heroLayout');
-  Object.assign(HERO.layout, {
-    base: { w: 0.62, y: -0.10 },
-    helmet: { w: 0.341, x: 0, y: -0.191 },
-    wire: { w: 0.341, x: 0, y: -0.191 }
-  });
-  paintPanel();
-  hero.render();
+  for (const k of ['base', 'helmet', 'wire']) {
+    Object.assign(L[k], DEFAULTS[k]);
+  }
+  HERO.opacity = { base: 1, helmet: 1, wire: 1 };
+  paint();
+  commit();
 });
 
 $('apply').addEventListener('click', () => {
-  localStorage.setItem('heroLayout', JSON.stringify(HERO.layout));
-  $('apply').textContent = '已保存 ✓';
-  setTimeout(() => ($('apply').textContent = '应用到主页'), 1600);
+  save();
+  const btn = $('apply');
+  const old = btn.textContent;
+  btn.textContent = '已保存 ✓';
+  setTimeout(() => { btn.textContent = old; }, 1400);
 });
 
-// 方向键微调
 window.addEventListener('keydown', (e) => {
-  const step = e.shiftKey ? 0.001 : 0.004;
-  const map = { ArrowLeft: ['hx', -step], ArrowRight: ['hx', step], ArrowUp: ['hy', step], ArrowDown: ['hy', -step] };
+  const tag = (e.target.tagName || '').toUpperCase();
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const base = parseFloat($('step').value) || 0.002;
+  const step = e.shiftKey ? base / 4 : base;
+  const map = {
+    ArrowLeft: ['x', -step],
+    ArrowRight: ['x', step],
+    ArrowUp: ['y', step],
+    ArrowDown: ['y', -step],
+  };
   const hit = map[e.key];
   if (!hit) return;
-  const el = S[hit[0]];
-  el.value = (+el.value + hit[1]).toFixed(3);
-  apply();
   e.preventDefault();
+  L.helmet[hit[0]] = (L.helmet[hit[0]] || 0) + hit[1];
+  paint();
+  commit();
 });
 
-paintPanel();
+paint();
 hero.render();
 </script>
 </body>
