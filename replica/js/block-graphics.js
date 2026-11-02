@@ -126,3 +126,26 @@ export function socialSVG(kind = '') {
 
   return `<svg class="glyph" viewBox="0 0 32 32" aria-hidden="true">${box}${glyph}</svg>`;
 }
+
+
+/**
+ * 板式网球球场（俯视）：矩形场地 + 发球线 + 中线
+ */
+export function courtSVG({ size = 200 } = {}) {
+  const w = size;
+  const h = size * 0.62;
+  const pad = size * 0.06;
+  const x0 = pad, y0 = (size - h) / 2, x1 = w - pad, y1 = y0 + h;
+  const midX = (x0 + x1) / 2;
+  const sv = (y0 + y1) / 2;
+  const serve = h * 0.30;
+
+  return `<svg class="court" viewBox="0 0 ${size} ${size}" aria-hidden="true" fill="none"
+      stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+    <rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${h}" rx="3"/>
+    <line x1="${x0}" y1="${sv}" x2="${x1}" y2="${sv}"/>
+    <line x1="${midX}" y1="${y0}" x2="${midX}" y2="${y1}"/>
+    <line x1="${x0}" y1="${sv - serve}" x2="${x1}" y2="${sv - serve}" stroke-dasharray="4 5"/>
+    <line x1="${x0}" y1="${sv + serve}" x2="${x1}" y2="${sv + serve}" stroke-dasharray="4 5"/>
+  </svg>`;
+}

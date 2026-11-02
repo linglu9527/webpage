@@ -21,7 +21,7 @@ import { PALETTE, ASSETS, CONTENT, MOTION, LINKS, HERO } from './config.js';
 import { Scroll, elementProgress } from './scroll.js';
 import { createHead } from './head-gl.js';
 import { HELMET, posterSVG } from './graphics.js';
-import { circuitSVG, markSVG, socialSVG } from './block-graphics.js';
+import { circuitSVG, markSVG, socialSVG, courtSVG } from './block-graphics.js';
 import { createHeroCanvas } from './hero-canvas.js';
 
 const $  = (s, r = document) => r.querySelector(s);
@@ -359,6 +359,19 @@ async function initHead(scroll) {
 /* ---------------------------------------------------------------------------
  * 6. 倒计时
  * ------------------------------------------------------------------------- */
+
+/* 区块配图：全部用代码生成的 SVG，随主题变色 */
+function initSectionArt() {
+  const on = $('[data-art="on-track"]');
+  if (on) on.innerHTML = circuitSVG(21, { size: 240 });
+
+  const off = $('[data-art="off-track"]');
+  if (off) off.innerHTML = courtSVG({ size: 240 });
+
+  const exe = $('[data-art="exe"]');
+  if (exe) exe.innerHTML = posterSVG(2, { kind: 2, label: 'LN4' });
+}
+
 function initCountdown() {
   const el = $('[data-countdown]');
   if (!el) return;
@@ -608,6 +621,7 @@ async function boot() {
   initThemes(scroll);
   initMotion(scroll);
   initReveals();
+  initSectionArt();
   initCountdown();
   initTransitions();
   try { await initHero(scroll); } catch (e) { window.__heroError = (e && e.message) || String(e); console.error(e); }
